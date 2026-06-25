@@ -1,0 +1,57 @@
+'use client';
+import { Rarity, RARITY_CONFIG } from '@/types/game';
+import { useFallbackImage, buildImageCandidates, stripKnownExtension } from '@/lib/image-fallback';
+
+interface Props {
+  src: string; alt: string; size?: number;
+  rarity?: Rarity; className?: string; style?: React.CSSProperties;
+}
+
+function Placeholder({ size, rarity, alt }: { size: number; rarity?: Rarity; alt: string }) {
+  const cfg   = rarity ? RARITY_CONFIG[rarity] : null;
+  const color = cfg?.color ?? '#6e6090';
+  const glow  = cfg?.glow  ?? '#6e6090';
+  const label = alt.slice(0, 2).toUpperCase();
+  return (
+    <div style={{
+      width: size, height: size,
+      background: `radial-gradient(circle at 35% 35%, ${color}33, ${color}0a)`,
+      border: `2px solid ${color}55`, borderRadius: '6px',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: '4px',
+      boxShadow: `0 0 16px ${glow}33, inset 0 0 12px ${color}11`,
+    }}>
+      <span style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:size*0.28, color, lineHeight:1, opacity:0.9 }}>{label}</span>
+      {size >= 56 && rarity && <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:size*0.1, color, opacity:0.6, letterSpacing:1 }}>{rarity}</span>}
+    </div>
+  );
+}
+
+export function PixelSprite({ src, alt, size = 64, rarity, className = '', style }: Props) {
+  // GIF/SVG : pas de cascade d'extension (formats déjà explicites et non interchangeables)
+  const isGif = src.toLowerCase().endsWith('.gif');
+  const isSvg = src.toLowerCase().endsWith('.svg');
+  const skipCascade = isGif || isSvg;
+
+  const candidates = skipCascade ? [src] : buildImageCandidates(stripKnownExtension(src));
+  const { src: resolvedSrc, failed, onError } = useFallbackImage(candidates);
+
+  if (failed || !resolvedSrc) return <Placeholder size={size} rarity={rarity} alt={alt} />;
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={resolvedSrc} alt={alt} width={size} height={size}
+      loading="lazy"
+      decoding="async"
+      className={className}
+      style={{
+        imageRendering: isGif ? 'auto' : 'pixelated',
+        objectFit: 'contain',
+        display: 'block',
+        ...style,
+      }}
+      onError={onError}
+    />
+  );
+}

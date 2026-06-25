@@ -1,0 +1,289 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { useGameStore } from '@/store/gameStore';
+import { useAuth } from '@/hooks/useAuth';
+import { formatNumber } from '@/lib/game/format';
+import { redeemGiftCode } from '@/lib/firebase/giftCodes';
+
+export function SettingsPage({ onForceSave }: { onForceSave?: () => Promise<void> }) {
+  const { resetGame, pixelCoins, nekoGems, totalClicks, wave, palier, maxPalierReached, collection, clickUpgradeLevel, musicVolume, musicMuted, setMusicVolume, toggleMusicMuted, username, setUsername } = useGameStore();
+  const { user, logout } = useAuth();
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetDone, setResetDone]       = useState(false);
+  const [saving,    setSaving]          = useState(false);
+  const [saveOk,    setSaveOk]          = useState(false);
+
+  // ── Code cadeau ──────────────────────────────────────────────────────
+  const [nameInput,   setNameInput]   = useState(username);
+  const [nameFeedback, setNameFeedback] = useState<string | null>(null);
+  const [giftInput,    setGiftInput]    = useState('');
+  const [giftLoading,  setGiftLoading]  = useState(false);
+  const [giftFeedback, setGiftFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  useEffect(() => {
+    setNameInput(username);
+  }, [username]);
+
+  const handleSaveName = () => {
+    const finalName = nameInput.trim().slice(0, 20);
+    if (!finalName) {
+      setNameFeedback('Le pseudo ne peut pas être vide.');
+      return;
+    }
+    setUsername(finalName);
+    setNameFeedback('Pseudo enregistré.');
+  };
+
+  const handleRedeemGift = async () => {
+    if (!giftInput.trim() || giftLoading) return;
+    setGiftLoading(true);
+    setGiftFeedback(null);
+    const result = await redeemGiftCode(user?.uid ?? null, giftInput);
+    setGiftLoading(false);
+
+    if (result.success) {
+      // Coins & gems
+      useGameStore.setState(s => ({
+        nekoGems:   s.nekoGems   + result.gems,
+        pixelCoins: s.pixelCoins + result.pixelCoins,
+      }));
+      // Personnages
+      if (result.characters && result.characters.length > 0) {
+        const { addToCollection } = useGameStore.getState();
+        result.characters.forEach(id => addToCollection(id));
+      }
+      // Items / équipements
+      if (result.items && result.items.length > 0) {
+        const { addItem } = useGameStore.getState();
+        result.items.forEach(id => addItem(id, 1));
+      }
+      const parts: string[] = [];
+      if (result.gems              > 0) parts.push(`+${result.gems} 💎`);
+      if (result.pixelCoins        > 0) parts.push(`+${result.pixelCoins.toLocaleString()} 🪙`);
+      if (result.characters?.length > 0) parts.push(`${result.characters.length} personnage(s) 🧬`);
+      if (result.items?.length      > 0) parts.push(`${result.items.length} item(s) 🎁`);
+      setGiftFeedback({ ok: true, msg: `${parts.join('  ')} ajoutés !` });
+      setGiftInput('');
+    } else {
+      const messages: Record<string, string> = {
+        invalid:        'Code invalide.',
+        already_used:   'Ce code a déjà été utilisé.',
+        not_logged_in:  'Connecte-toi d\'abord pour valider un code.',
+        error:          'Erreur réseau, réessaie plus tard.',
+      };
+      setGiftFeedback({ ok: false, msg: messages[result.reason] ?? 'Erreur inconnue.' });
+    }
+  };
+
+  // ── Reset ─────────────────────────────────────────────────────────────
+  const handleReset = () => {
+    if (!confirmReset) { setConfirmReset(true); return; }
+    try { localStorage.clear(); } catch {}
+    resetGame();
+    setConfirmReset(false);
+    setResetDone(true);
+    setTimeout(() => setResetDone(false), 3000);
+  };
+
+  const saveData = {
+    'Pixel-Coins':        formatNumber(pixelCoins),
+    'Neko-Gemmes':        formatNumber(nekoGems),
+    'Clics totaux':       formatNumber(totalClicks),
+    'Palier actuel':      String(palier),
+    'Vague actuelle':     String(wave),
+    'Palier max atteint': String(maxPalierReached),
+    'Alliés obtenus':     String(Object.keys(collection).length),
+    'Niveau upgrade clic':String(clickUpgradeLevel),
+  };
+
+  return (
+    <div style={{ height:'100%', overflowY:'auto', padding:'24px 28px' }}>
+      <div style={{ maxWidth:'600px', margin:'0 auto', display:'flex', flexDirection:'column', gap:'20px' }}>
+
+        {/* ── MUSIQUE ── */}
+        <div className="panel" style={{ padding:'20px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,var(--cyan),#0e7490)', borderRadius:'2px', boxShadow:'0 0 8px var(--cyan)' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'var(--cyan)', letterSpacing:'2px' }}>🎵 MUSIQUE</span>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
+            <button onClick={toggleMusicMuted}
+              style={{ width:40, height:40, flexShrink:0, background: musicMuted ? 'rgba(248,113,113,0.1)' : 'rgba(74,222,128,0.1)', border:`1px solid ${musicMuted?'rgba(248,113,113,0.3)':'rgba(74,222,128,0.3)'}`, borderRadius:'8px', cursor:'pointer', fontSize:'18px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              {musicMuted ? '🔇' : '🔊'}
+            </button>
+            <input
+              type="range" min={0} max={1} step={0.01}
+              value={musicMuted ? 0 : musicVolume}
+              onChange={e => { setMusicVolume(parseFloat(e.target.value)); if (musicMuted) toggleMusicMuted(); }}
+              style={{ flex:1, accentColor:'var(--cyan)' }}
+            />
+            <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:'var(--text-dim)', width:'40px', textAlign:'right' }}>
+              {Math.round((musicMuted ? 0 : musicVolume) * 100)}%
+            </span>
+          </div>
+        </div>
+
+        {/* ── COMPTE ── */}
+        <div className="panel" style={{ padding:'20px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,var(--purple-hi),var(--purple-dim))', borderRadius:'2px', boxShadow:'0 0 8px var(--purple-hi)' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'var(--purple-glow)', letterSpacing:'2px' }}>COMPTE</span>
+          </div>
+          <div style={{ display:'grid', gap:'12px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+              <div style={{ width:44, height:44, background:'linear-gradient(135deg,#3b0764,#6d28d9)', borderRadius:'10px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', border:'1px solid var(--purple-dim)' }}>🐱</div>
+              <div>
+                <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'15px', color:'var(--text)' }}>{username || 'NEKOZ'}</div>
+                <div style={{ fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-dim)', marginTop:'2px' }}>{user ? user.email : 'Sans compte'}</div>
+              </div>
+            </div>
+            <div style={{ display:'flex', gap:'10px', flexWrap:'wrap' }}>
+              <input type="text" value={nameInput} onChange={e => setNameInput(e.target.value)}
+                placeholder="Ton pseudo"
+                style={{ flex:1, minWidth:'180px', padding:'12px 14px', background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'10px', color:'var(--text)', fontFamily:'var(--f-ui)', fontWeight:700 }} />
+              <button onClick={handleSaveName}
+                style={{ padding:'12px 20px', background:'linear-gradient(135deg,#6d28d9,#a855f7)', border:'1px solid #c084fc', borderRadius:'10px', fontFamily:'var(--f-ui)', fontWeight:700, color:'white', cursor:'pointer' }}>
+                ENREGISTRER
+              </button>
+            </div>
+            {nameFeedback && <div style={{ fontFamily:'var(--f-ui)', fontSize:'12px', color:'var(--text-dim)' }}>{nameFeedback}</div>}
+            {user ? (
+              <button onClick={logout}
+                style={{ padding:'10px 16px', background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.3)', borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'12px', color:'var(--red)', cursor:'pointer', width:'fit-content' }}>
+                DÉCONNEXION
+              </button>
+            ) : (
+              <div style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'var(--text-dim)' }}>○ Non connecté</div>
+            )}
+
+            {/* ── Sauvegarde forcée ─────────────────────────────────── */}
+            {user && onForceSave && (
+              <button
+                onClick={async () => {
+                  setSaving(true); setSaveOk(false);
+                  await onForceSave();
+                  setSaving(false); setSaveOk(true);
+                  setTimeout(() => setSaveOk(false), 3000);
+                }}
+                disabled={saving}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '10px 16px', width: 'fit-content',
+                  background: saveOk ? 'rgba(74,222,128,0.1)' : 'rgba(99,102,241,0.1)',
+                  border: `1px solid ${saveOk ? 'rgba(74,222,128,0.4)' : 'rgba(99,102,241,0.4)'}`,
+                  borderRadius: '8px', cursor: saving ? 'wait' : 'pointer',
+                  fontFamily: 'var(--f-ui)', fontWeight: 700, fontSize: '12px',
+                  color: saveOk ? '#4ade80' : '#a5b4fc',
+                  transition: 'all 0.3s',
+                }}
+              >
+                <span>{saving ? '⏳' : saveOk ? '✅' : '☁️'}</span>
+                <span>{saving ? 'SAUVEGARDE...' : saveOk ? 'SAUVEGARDÉ !' : 'FORCER LA SAUVEGARDE'}</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* ── CODE CADEAU ── */}
+        <div className="panel" style={{ padding:'20px', border:'1px solid rgba(168,85,247,0.3)', boxShadow:'0 0 16px rgba(168,85,247,0.08)' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,#c084fc,#6d28d9)', borderRadius:'2px', boxShadow:'0 0 8px #c084fc' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'#c084fc', letterSpacing:'2px' }}>🎁 CODE CADEAU</span>
+          </div>
+
+          {!user ? (
+            <div style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'var(--text-dim)' }}>
+              Connecte-toi d&apos;abord pour pouvoir valider un code cadeau.
+            </div>
+          ) : (
+            <>
+              <div style={{ display:'flex', gap:'10px' }}>
+                <input
+                  type="text" value={giftInput}
+                  onChange={e => setGiftInput(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleRedeemGift(); }}
+                  placeholder="Entre ton code ici..."
+                  disabled={giftLoading}
+                  style={{ flex:1, padding:'11px 14px', background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:'var(--text)', letterSpacing:'1px', textTransform:'uppercase' }}
+                />
+                <button onClick={handleRedeemGift} disabled={giftLoading || !giftInput.trim()}
+                  style={{ padding:'11px 20px', background: giftLoading||!giftInput.trim() ? 'rgba(255,255,255,0.03)' : 'linear-gradient(135deg,#6d28d9,#a855f7)', border:`1px solid ${giftLoading||!giftInput.trim()?'var(--border)':'#c084fc'}`, borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color: giftLoading||!giftInput.trim() ? 'var(--text-muted)' : 'white', cursor: giftLoading||!giftInput.trim() ? 'not-allowed' : 'pointer', whiteSpace:'nowrap' }}>
+                  {giftLoading ? '...' : 'VALIDER'}
+                </button>
+              </div>
+              {giftFeedback && (
+                <div style={{ marginTop:'12px', padding:'10px 14px', borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px',
+                  background: giftFeedback.ok ? 'rgba(74,222,128,0.08)' : 'rgba(239,68,68,0.08)',
+                  border: `1px solid ${giftFeedback.ok ? 'rgba(74,222,128,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                  color: giftFeedback.ok ? 'var(--green)' : 'var(--red)' }}>
+                  {giftFeedback.ok ? '✅' : '❌'} {giftFeedback.msg}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* ── SAUVEGARDE ── */}
+        <div className="panel" style={{ padding:'20px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,var(--cyan),#0e7490)', borderRadius:'2px', boxShadow:'0 0 8px var(--cyan)' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'var(--cyan)', letterSpacing:'2px' }}>SAUVEGARDE</span>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
+            {Object.entries(saveData).map(([label, val]) => (
+              <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 12px', background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'8px' }}>
+                <span style={{ fontFamily:'var(--f-ui)', fontSize:'12px', color:'var(--text-dim)' }}>{label}</span>
+                <span style={{ fontFamily:'var(--f-ui)', fontWeight:800, fontSize:'14px', color:'var(--text)' }}>{val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── RESET ── */}
+        <div className="panel" style={{ padding:'20px', border: confirmReset ? '1px solid rgba(239,68,68,0.4)' : '1px solid var(--border)', boxShadow: confirmReset ? '0 0 20px rgba(239,68,68,0.1)' : 'none', transition:'all 0.2s' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,var(--red),#7f1d1d)', borderRadius:'2px', boxShadow:'0 0 8px var(--red)' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'var(--red)', letterSpacing:'2px' }}>RÉINITIALISATION</span>
+          </div>
+
+          {resetDone ? (
+            <div style={{ textAlign:'center', padding:'16px', background:'rgba(74,222,128,0.08)', border:'1px solid rgba(74,222,128,0.25)', borderRadius:'8px' }}>
+              <div style={{ fontSize:'28px', marginBottom:'8px' }}>✅</div>
+              <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'14px', color:'var(--green)' }}>Partie réinitialisée !</div>
+            </div>
+          ) : (
+            <>
+              <p style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'var(--text-dim)', lineHeight:1.6, marginBottom:'16px' }}>
+                Remet ta partie à zéro — <strong style={{ color:'var(--red)' }}>toute ta progression sera perdue</strong>.
+              </p>
+              {confirmReset && (
+                <div style={{ background:'rgba(127,29,29,0.2)', border:'1px solid rgba(239,68,68,0.35)', borderRadius:'8px', padding:'12px 14px', marginBottom:'14px', display:'flex', alignItems:'center', gap:'10px' }}>
+                  <span style={{ fontSize:'20px' }}>⚠️</span>
+                  <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:'#fca5a5' }}>Tu es sûr ? Cette action est irréversible.</span>
+                </div>
+              )}
+              <div style={{ display:'flex', gap:'10px' }}>
+                <button onClick={handleReset}
+                  style={{ flex:1, padding:'11px', background:confirmReset?'linear-gradient(135deg,#7f1d1d,#991b1b)':'rgba(239,68,68,0.08)', border:`1px solid ${confirmReset?'#ef4444':'rgba(239,68,68,0.3)'}`, borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:confirmReset?'white':'var(--red)', cursor:'pointer', transition:'all 0.15s' }}>
+                  {confirmReset ? '🗑 CONFIRMER' : '🔄 RÉINITIALISER LA PARTIE'}
+                </button>
+                {confirmReset && (
+                  <button onClick={() => setConfirmReset(false)}
+                    style={{ padding:'11px 18px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:'var(--text-dim)', cursor:'pointer' }}>
+                    Annuler
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div style={{ textAlign:'center', fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-muted)', lineHeight:1.8 }}>
+          <div>GACHA VERSE — Version 1.0</div>
+          <div style={{ marginTop:'4px', color:'var(--text-dim)' }}>Clé : <code style={{ background:'rgba(255,255,255,0.05)', padding:'1px 6px', borderRadius:'3px' }}>nekoz-world-v6</code></div>
+        </div>
+
+      </div>
+    </div>
+  );
+}

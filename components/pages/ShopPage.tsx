@@ -1,0 +1,248 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { useGameStore } from '@/store/gameStore';
+import { CharacterCardThumb } from '@/components/ui/CharacterCardThumb';
+import { RarityBadge } from '@/components/ui/RarityBadge';
+import { getCharacterById } from '@/lib/game/characters';
+import { RARITY_CONFIG } from '@/types/game';
+import { formatNumber } from '@/lib/game/format';
+import {
+  CROWN_GEM_PACKS, ORB_GEM_PACKS, GEM_GOLD_PACKS, BOOST_COST_CROWNS, BOOST_DURATION_MS, BOOST_MULTIPLIER,
+  SHOP_CHAR_PRICE_ORBS, LAUNCH_TIMESTAMP, STARTER_PACK_WINDOW_MS, STARTER_PACK_REWARDS,
+} from '@/lib/game/shop';
+
+function formatDuration(ms: number): string {
+  if (ms <= 0) return '00:00';
+  const totalSec = Math.ceil(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function msUntilNextMidnight(): number {
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(24, 0, 0, 0);
+  return next.getTime() - now.getTime();
+}
+
+export function ShopPage() {
+  const {
+    nekoGems, bossCrowns, voidOrbs,
+    dpsBoostEndsAt, goldBoostEndsAt, isDpsBoostActive, isGoldBoostActive,
+    buyDpsBoost, buyGoldBoost, buyGemsWithCrowns, buyGoldWithGems,
+    dailyShop, ensureDailyShop, buyShopCharacter, buyGemsWithOrbs,
+    starterPackClaimed, isStarterPackAvailable, claimStarterPack,
+  } = useGameStore();
+
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    ensureDailyShop();
+    const id = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [ensureDailyShop]);
+
+  const dpsActive  = isDpsBoostActive();
+  const goldActive = isGoldBoostActive();
+  const starterAvailable = isStarterPackAvailable();
+  const starterTimeLeft  = (LAUNCH_TIMESTAMP + STARTER_PACK_WINDOW_MS) - Date.now();
+
+  return (
+    <div style={{ height:'100%', overflowY:'auto', padding:'24px 28px' }}>
+      <div style={{ maxWidth:'820px', margin:'0 auto', display:'flex', flexDirection:'column', gap:'28px' }}>
+
+        {/* ── Pack de démarrage Early Access ── */}
+        {starterAvailable && (
+          <div style={{ background:'linear-gradient(135deg,#1a0d2e,#3b0764)', border:'2px solid #c084fc', borderRadius:'14px', padding:'20px 24px', position:'relative', overflow:'hidden', boxShadow:'0 0 30px rgba(168,85,247,0.35)' }}>
+            <div style={{ position:'absolute', top:'12px', right:'16px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'11px', color:'#e9d5ff', background:'rgba(88,28,135,0.7)', border:'1px solid #c084fc66', borderRadius:'6px', padding:'3px 10px', letterSpacing:'0.5px' }}>
+              ⏳ Expire dans {formatDuration(starterTimeLeft)}
+            </div>
+            <div style={{ fontFamily:'var(--f-title)', fontSize:'18px', fontWeight:700, color:'#e9d5ff', marginBottom:'6px', letterSpacing:'1px' }}>✦ PACK DE BIENVENUE ✦</div>
+            <div style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'rgba(255,255,255,0.7)', marginBottom:'16px' }}>
+              Offre limitée aux 24 premières heures du jeu. Gratuit, juste pour toi !
+            </div>
+            <div style={{ display:'flex', gap:'14px', marginBottom:'16px' }}>
+              {[
+                { icon:'💎', val:STARTER_PACK_REWARDS.gems,       label:'Gemmes' },
+                { icon:'🔮', val:STARTER_PACK_REWARDS.voidOrbs,   label:'Orbes du Néant' },
+              ].map(r => (
+                <div key={r.label} style={{ flex:1, background:'rgba(0,0,0,0.25)', borderRadius:'10px', padding:'10px', textAlign:'center' }}>
+                  <div style={{ fontSize:'22px' }}>{r.icon}</div>
+                  <div style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'18px', color:'white' }}>{r.val}</div>
+                  <div style={{ fontFamily:'var(--f-ui)', fontSize:'10px', color:'rgba(255,255,255,0.5)' }}>{r.label}</div>
+                </div>
+              ))}
+            </div>
+            <button onClick={claimStarterPack}
+              style={{ width:'100%', padding:'12px', background:'linear-gradient(135deg,#a855f7,#7c3aed)', border:'none', borderRadius:'9px', fontFamily:'var(--f-ui)', fontWeight:800, fontSize:'15px', color:'white', cursor:'pointer', letterSpacing:'0.5px', boxShadow:'0 4px 16px rgba(168,85,247,0.4)' }}>
+              RÉCLAMER GRATUITEMENT
+            </button>
+          </div>
+        )}
+        {starterPackClaimed && (
+          <div style={{ background:'rgba(74,222,128,0.06)', border:'1px solid rgba(74,222,128,0.25)', borderRadius:'10px', padding:'10px 16px', fontFamily:'var(--f-ui)', fontSize:'12px', color:'#4ade80', textAlign:'center' }}>
+            ✓ Pack de bienvenue déjà réclamé
+          </div>
+        )}
+
+        {/* ══ BOSSCROWN ══════════════════════════════════════════════════ */}
+        <div>
+          <div style={{ background:'linear-gradient(135deg,#2a1500,#3d1f00)', border:'1px solid rgba(217,158,34,0.35)', borderRadius:'14px', padding:'18px 22px', display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
+            <div>
+              <div style={{ fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-dim)', fontWeight:600, letterSpacing:'1px', marginBottom:'4px' }}>TON SOLDE</div>
+              <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                <span style={{ fontSize:'26px' }}>👑</span>
+                <span style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'28px', color:'#fbbf24' }}>{formatNumber(bossCrowns)}</span>
+                <span style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'var(--text-dim)' }}>BossCrowns</span>
+              </div>
+            </div>
+            <div style={{ textAlign:'right', fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-muted)', lineHeight:1.6 }}>
+              +1 👑 à chaque boss vaincu
+            </div>
+          </div>
+
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,#fbbf24,#b45309)', borderRadius:'2px', boxShadow:'0 0 8px #fbbf24' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'#fbbf24', letterSpacing:'2px' }}>BOOSTS TEMPORAIRES</span>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'10px', marginBottom:'20px' }}>
+            {[
+              { key:'dps' as const, icon:'⚡', label:'Boost DPS', active:dpsActive, endsAt:dpsBoostEndsAt, buy:buyDpsBoost, color:'#f87171' },
+              { key:'gold' as const, icon:'💰', label:'Boost Or', active:goldActive, endsAt:goldBoostEndsAt, buy:buyGoldBoost, color:'#4ade80' },
+            ].map(b => (
+              <div key={b.key} style={{ background:b.active?`${b.color}14`:'var(--bg-card)', border:`1px solid ${b.active?b.color+'66':'var(--border)'}`, borderRadius:'12px', padding:'16px', display:'flex', flexDirection:'column', gap:'8px' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <span style={{ fontSize:'20px' }}>{b.icon}</span>
+                  <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'14px', color:'var(--text)' }}>{b.label}</span>
+                </div>
+                <div style={{ fontFamily:'var(--f-ui)', fontSize:'12px', color:'var(--text-dim)' }}>
+                  +{Math.round((BOOST_MULTIPLIER-1)*100)}% pendant {BOOST_DURATION_MS/60000} min
+                </div>
+                {b.active && (
+                  <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'12px', color:b.color }}>
+                    ✓ ACTIF — {formatDuration(b.endsAt - Date.now())} restant
+                  </div>
+                )}
+                <button onClick={b.buy} disabled={bossCrowns < BOOST_COST_CROWNS}
+                  style={{ marginTop:'4px', padding:'9px', background:bossCrowns>=BOOST_COST_CROWNS?`${b.color}22`:'rgba(255,255,255,0.03)', border:`1px solid ${bossCrowns>=BOOST_COST_CROWNS?b.color+'66':'var(--border)'}`, borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:bossCrowns>=BOOST_COST_CROWNS?b.color:'var(--text-muted)', cursor:bossCrowns>=BOOST_COST_CROWNS?'pointer':'not-allowed', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px' }}>
+                  {b.active ? 'PROLONGER' : 'ACTIVER'} · 👑{BOOST_COST_CROWNS}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
+            {CROWN_GEM_PACKS.map(p => (
+              <div key={p.id} style={{ background:'rgba(251,191,36,0.05)', border:'1px solid rgba(251,191,36,0.25)', borderRadius:'10px', padding:'14px', display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' }}>
+                <span style={{ fontSize:'22px' }}>💎</span>
+                <span style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'18px', color:'var(--cyan)' }}>{p.gems}</span>
+                {p.bonusLabel && <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'10px', color:'#4ade80' }}>{p.bonusLabel}</span>}
+                <button onClick={() => buyGemsWithCrowns(p.id)} disabled={bossCrowns < p.crowns}
+                  style={{ width:'100%', marginTop:'4px', padding:'8px', background:bossCrowns>=p.crowns?'rgba(251,191,36,0.18)':'rgba(255,255,255,0.03)', border:`1px solid ${bossCrowns>=p.crowns?'#fbbf2466':'var(--border)'}`, borderRadius:'7px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:bossCrowns>=p.crowns?'#fbbf24':'var(--text-muted)', cursor:bossCrowns>=p.crowns?'pointer':'not-allowed' }}>
+                  👑 {p.crowns}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ══ ACHATS EN GEMMES (OR) ═════════════════════════════════════════════ */}
+        <div>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,#38bdf8,#0ea5e9)', borderRadius:'2px', boxShadow:'0 0 8px #38bdf8' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'#38bdf8', letterSpacing:'2px' }}>ACHATS EN GEMMES</span>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px', marginBottom:'20px' }}>
+            {GEM_GOLD_PACKS.map(p => {
+              const canBuy = nekoGems >= p.gems;
+              return (
+                <div key={p.id} style={{ background:'rgba(56,189,248,0.05)', border:'1px solid rgba(56,189,248,0.25)', borderRadius:'10px', padding:'14px', display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' }}>
+                  <span style={{ fontSize:'22px' }}>💰</span>
+                  <span style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'18px', color:'var(--cyan)' }}>{formatNumber(p.coins)} or</span>
+                  {p.bonusLabel && <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'10px', color:'#4ade80' }}>{p.bonusLabel}</span>}
+                  <button onClick={() => buyGoldWithGems(p.id)} disabled={!canBuy}
+                    style={{ width:'100%', marginTop:'4px', padding:'8px', background:canBuy?'rgba(56,189,248,0.18)':'rgba(255,255,255,0.03)', border:`1px solid ${canBuy?'#38bdf866':'var(--border)'}`, borderRadius:'7px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:canBuy?'#38bdf8':'var(--text-muted)', cursor:canBuy?'pointer':'not-allowed' }}>
+                    💎 {p.gems}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ══ ORBE DU NÉANT ══════════════════════════════════════════════ */}
+        <div>
+          <div style={{ background:'linear-gradient(135deg,#1a0d2e,#0d0520)', border:'1px solid rgba(168,85,247,0.35)', borderRadius:'14px', padding:'18px 22px', display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
+            <div>
+              <div style={{ fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-dim)', fontWeight:600, letterSpacing:'1px', marginBottom:'4px' }}>TON SOLDE</div>
+              <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                <span style={{ fontSize:'26px' }}>🔮</span>
+                <span style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'28px', color:'#c084fc' }}>{formatNumber(voidOrbs)}</span>
+                <span style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'var(--text-dim)' }}>Orbes du Néant</span>
+              </div>
+            </div>
+            <div style={{ textAlign:'right', fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-muted)', lineHeight:1.6 }}>
+              Obtenues en recyclant<br/>les doublons d&apos;un perso 7★
+            </div>
+          </div>
+
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+              <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,#c084fc,#6d28d9)', borderRadius:'2px', boxShadow:'0 0 8px #c084fc' }} />
+              <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'#c084fc', letterSpacing:'2px' }}>BOUTIQUE DU JOUR</span>
+            </div>
+            <span style={{ fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-muted)' }}>
+              ⏳ Renouvellement dans {formatDuration(msUntilNextMidnight())}
+            </span>
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px', marginBottom:'20px' }}>
+            {dailyShop.characterIds.map(id => {
+              const tpl = getCharacterById(id);
+              if (!tpl) return null;
+              const cfg     = RARITY_CONFIG[tpl.rarity];
+              const price   = SHOP_CHAR_PRICE_ORBS[tpl.rarity];
+              const bought  = dailyShop.purchased.includes(id);
+              const canBuy  = !bought && voidOrbs >= price;
+              return (
+                <div key={id} style={{ background:bought?'rgba(74,222,128,0.05)':`${cfg.color}0c`, border:`1px solid ${bought?'rgba(74,222,128,0.3)':cfg.color+'55'}`, borderRadius:'12px', padding:'14px', display:'flex', flexDirection:'column', alignItems:'center', gap:'8px' }}>
+                  <CharacterCardThumb templateId={tpl.id} name={tpl.name} rarity={tpl.rarity} width={64} height={88} />
+                  <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:'var(--text)', textAlign:'center' }}>{tpl.name}</span>
+                  <RarityBadge rarity={tpl.rarity} />
+                  <button onClick={() => buyShopCharacter(dailyShop.characterIds.indexOf(id))} disabled={!canBuy}
+                    style={{ width:'100%', padding:'8px', background:bought?'rgba(74,222,128,0.12)':canBuy?`${cfg.color}22`:'rgba(255,255,255,0.03)', border:`1px solid ${bought?'rgba(74,222,128,0.4)':canBuy?cfg.color+'66':'var(--border)'}`, borderRadius:'7px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'12px', color:bought?'#4ade80':canBuy?cfg.color:'var(--text-muted)', cursor:canBuy?'pointer':'default', display:'flex', alignItems:'center', justifyContent:'center', gap:'5px' }}>
+                    {bought ? '✓ ACHETÉ' : <>🔮 {price}</>}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
+            {ORB_GEM_PACKS.map(p => (
+              <div key={p.id} style={{ background:'rgba(168,85,247,0.05)', border:'1px solid rgba(168,85,247,0.25)', borderRadius:'10px', padding:'14px', display:'flex', flexDirection:'column', alignItems:'center', gap:'6px' }}>
+                <span style={{ fontSize:'22px' }}>💎</span>
+                <span style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'18px', color:'var(--cyan)' }}>{p.gems}</span>
+                {p.bonusLabel && <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'10px', color:'#4ade80' }}>{p.bonusLabel}</span>}
+                <button onClick={() => buyGemsWithOrbs(p.id)} disabled={voidOrbs < p.orbs}
+                  style={{ width:'100%', marginTop:'4px', padding:'8px', background:voidOrbs>=p.orbs?'rgba(168,85,247,0.18)':'rgba(255,255,255,0.03)', border:`1px solid ${voidOrbs>=p.orbs?'#c084fc66':'var(--border)'}`, borderRadius:'7px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:voidOrbs>=p.orbs?'#c084fc':'var(--text-muted)', cursor:voidOrbs>=p.orbs?'pointer':'not-allowed' }}>
+                  🔮 {p.orbs}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Solde gemmes (rappel) */}
+        <div style={{ background:'rgba(34,211,238,0.04)', border:'1px solid rgba(34,211,238,0.2)', borderRadius:'10px', padding:'12px 16px', display:'flex', alignItems:'center', justifyContent:'center', gap:'10px' }}>
+          <span style={{ fontSize:'18px' }}>💎</span>
+          <span style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'15px', color:'var(--cyan)' }}>{formatNumber(nekoGems)}</span>
+          <span style={{ fontFamily:'var(--f-ui)', fontSize:'12px', color:'var(--text-dim)' }}>Neko-Gemmes — utilisables dans l&apos;onglet GACHA</span>
+        </div>
+
+      </div>
+    </div>
+  );
+}

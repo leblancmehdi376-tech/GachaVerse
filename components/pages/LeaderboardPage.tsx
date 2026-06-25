@@ -1,0 +1,199 @@
+'use client';
+import { useEffect, useState, useRef } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useGameStore } from '@/store/gameStore';
+import { formatNumber } from '@/lib/game/format';
+import { getTopLeaderboard, updatePlayerScore, LeaderboardEntry } from '@/lib/firebase/leaderboard';
+
+const REFRESH_INTERVAL_MS = 30_000;
+
+const RANK_COLORS = ['#fbbf24', '#94a3b8', '#b45309', '#a855f7', '#6366f1'];
+const RANK_ICONS  = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+
+function getRankColor(idx: number): string {
+  return RANK_COLORS[idx] ?? 'var(--text-dim)';
+}
+function getRankDisplay(idx: number): string {
+  return idx < 5 ? (RANK_ICONS[idx] ?? `#${idx+1}`) : `#${idx+1}`;
+}
+
+export function LeaderboardPage() {
+  const { user } = useAuth();
+  const { username, palier, wave, totalClicks, pixelCoins, setUsername, getTotalDps } = useGameStore();
+
+  const [loading,   setLoading]   = useState(true);
+  const [entries,   setEntries]   = useState<LeaderboardEntry[]>([]);
+  const [nameInput, setNameInput] = useState(username || '');
+  const [feedback,  setFeedback]  = useState<{ ok: boolean; msg: string } | null>(null);
+  const [saving,    setSaving]    = useState(false);
+
+  const loadEntries = async () => {
+    setLoading(true);
+    setEntries(await getTopLeaderboard(20));
+    setLoading(false);
+  };
+
+  // Chargement initial
+  useEffect(() => { loadEntries(); }, []);
+
+  // Auto-refresh toutes les 30s
+  useEffect(() => {
+    const id = setInterval(loadEntries, REFRESH_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  // Sync input si le username change dans le store (ex: chargé depuis Firestore)
+  useEffect(() => { setNameInput(username || ''); }, [username]);
+
+  const handleSaveName = async () => {
+    const final = nameInput.trim().slice(0, 20);
+    if (!final) { setFeedback({ ok:false, msg:'Le pseudo ne peut pas être vide.' }); return; }
+    if (!user)  { setFeedback({ ok:false, msg:'Tu dois être connecté pour changer ton pseudo.' }); return; }
+
+    setSaving(true);
+    setUsername(final);
+    try {
+      await updatePlayerScore(user.uid, { username: final, palier, wave, totalClicks, pixelCoins, totalDps: getTotalDps() });
+      setFeedback({ ok:true, msg:'Pseudo enregistré !' });
+      await loadEntries(); // refresh immédiat pour voir le nouveau pseudo
+    } catch {
+      setFeedback({ ok:false, msg:'Erreur réseau, réessaie.' });
+    }
+    setSaving(false);
+  };
+
+  const myEntry = entries.find(e => e.uid === user?.uid);
+  const myRank  = myEntry ? entries.indexOf(myEntry) + 1 : null;
+
+  return (
+    <div style={{ height:'100%', overflowY:'auto', padding:'24px 28px' }}>
+      <div style={{ maxWidth:'900px', margin:'0 auto', display:'flex', flexDirection:'column', gap:'20px' }}>
+
+        {/* Header */}
+        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+          <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,#fbbf24,#f59e0b)', borderRadius:'2px', boxShadow:'0 0 8px #fbbf24' }} />
+          <span style={{ fontFamily:'var(--f-title)', fontSize:'16px', fontWeight:700, color:'#fbbf24', letterSpacing:'2px' }}>🏆 CLASSEMENT</span>
+          <span style={{ fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-muted)', marginLeft:4 }}>Mis à jour toutes les 30s</span>
+          {loading && <span style={{ fontFamily:'var(--f-ui)', fontSize:'11px', color:'var(--text-muted)' }}>⏳</span>}
+        </div>
+
+        {/* Pseudo + Ma progression */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px' }}>
+          {/* Pseudo */}
+          <div className="panel" style={{ padding:'18px 20px' }}>
+            <div style={{ fontFamily:'var(--f-ui)', fontSize:'10px', color:'var(--text-muted)', letterSpacing:'1px', marginBottom:'10px' }}>TON PSEUDO PUBLIC</div>
+            {!user ? (
+              <div style={{ fontFamily:'var(--f-ui)', fontSize:'12px', color:'var(--text-dim)' }}>Connecte-toi pour définir ton pseudo et apparaître dans le classement.</div>
+            ) : (
+              <>
+                <div style={{ display:'flex', gap:'8px' }}>
+                  <input value={nameInput} onChange={e => { setNameInput(e.target.value); setFeedback(null); }}
+                    onKeyDown={e => e.key === 'Enter' && handleSaveName()}
+                    maxLength={20} placeholder="Ton pseudo..."
+                    style={{ flex:1, padding:'10px 12px', background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'8px', color:'var(--text)', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px' }} />
+                  <button onClick={handleSaveName} disabled={saving || !nameInput.trim()}
+                    style={{ padding:'10px 16px', background: saving||!nameInput.trim() ? 'rgba(255,255,255,0.04)' : 'linear-gradient(135deg,#6d28d9,#a855f7)', border:`1px solid ${saving||!nameInput.trim() ? 'var(--border)' : '#c084fc'}`, borderRadius:'8px', fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'12px', color: saving||!nameInput.trim() ? 'var(--text-muted)' : 'white', cursor: saving||!nameInput.trim() ? 'not-allowed' : 'pointer', whiteSpace:'nowrap' }}>
+                    {saving ? '...' : 'SAUVEGARDER'}
+                  </button>
+                </div>
+                {feedback && (
+                  <div style={{ marginTop:'10px', fontFamily:'var(--f-ui)', fontSize:'12px', fontWeight:700,
+                    color: feedback.ok ? 'var(--green)' : 'var(--red)' }}>
+                    {feedback.ok ? '✅' : '❌'} {feedback.msg}
+                  </div>
+                )}
+                {myRank && (
+                  <div style={{ marginTop:'10px', fontFamily:'var(--f-ui)', fontSize:'12px', color:'var(--text-dim)' }}>
+                    Tu es classé <span style={{ color:'#fbbf24', fontWeight:700 }}>#{myRank}</span> sur {entries.length} joueurs
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Ma progression */}
+          <div className="panel" style={{ padding:'18px 20px' }}>
+            <div style={{ fontFamily:'var(--f-ui)', fontSize:'10px', color:'var(--text-muted)', letterSpacing:'1px', marginBottom:'10px' }}>TA PROGRESSION</div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
+              {[
+                { label:'Palier',       value: String(palier)          },
+                { label:'Vague',        value: `${wave}/10`            },
+                { label:'Clics',        value: formatNumber(totalClicks)},
+                { label:'Pixel-Coins',  value: formatNumber(pixelCoins) },
+              ].map(item => (
+                <div key={item.label} style={{ padding:'10px 12px', background:'rgba(255,255,255,0.04)', border:'1px solid var(--border)', borderRadius:'8px' }}>
+                  <div style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:'var(--text-muted)', letterSpacing:'1px' }}>{item.label.toUpperCase()}</div>
+                  <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'15px', color:'var(--text)', marginTop:2 }}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Tableau */}
+        <div className="panel" style={{ padding:'20px' }}>
+          <div style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'var(--text)', letterSpacing:'1px', marginBottom:'16px' }}>
+            TOP {entries.length} JOUEURS
+          </div>
+          {loading && entries.length === 0 ? (
+            <div style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'var(--text-dim)', padding:'20px 0' }}>Chargement…</div>
+          ) : entries.length === 0 ? (
+            <div style={{ fontFamily:'var(--f-ui)', fontSize:'13px', color:'var(--text-dim)', padding:'20px 0' }}>Aucun joueur enregistré pour l&apos;instant.</div>
+          ) : (
+            <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+              {entries.map((entry, idx) => {
+                const isMe = entry.uid === user?.uid;
+                const rankColor = getRankColor(idx);
+                return (
+                  <div key={entry.uid} style={{
+                    display:'grid', gridTemplateColumns:'48px 1fr 80px 80px 110px 100px 100px',
+                    alignItems:'center', gap:'8px',
+                    padding:'12px 16px', borderRadius:'10px',
+                    background: isMe ? 'rgba(168,85,247,0.1)' : 'rgba(255,255,255,0.02)',
+                    border: isMe ? '1px solid rgba(168,85,247,0.4)' : '1px solid var(--border)',
+                    boxShadow: isMe ? '0 0 12px rgba(168,85,247,0.15)' : 'none',
+                  }}>
+                    {/* Rang */}
+                    <div style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize: idx < 3 ? '20px' : '14px', color:getRankColor(idx), textAlign:'center' }}>
+                      {getRankDisplay(idx)}
+                    </div>
+                    {/* Pseudo */}
+                    <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color: isMe ? '#c084fc' : 'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      {entry.username}{isMe && ' (toi)'}
+                    </div>
+                    {/* Palier */}
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:'var(--text-muted)' }}>PALIER</div>
+                      <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'14px', color:'var(--text)' }}>{entry.palier}</div>
+                    </div>
+                    {/* Vague */}
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:'var(--text-muted)' }}>VAGUE</div>
+                      <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'14px', color:'var(--text)' }}>{entry.wave}/10</div>
+                    </div>
+                    {/* Pixel-Coins */}
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:'var(--text-muted)' }}>PIXEL-COINS</div>
+                      <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:'#fbbf24' }}>{formatNumber(entry.pixelCoins)}</div>
+                    </div>
+                    {/* Score */}
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:'var(--text-muted)' }}>SCORE</div>
+                      <div style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'14px', color:rankColor }}>{formatNumber(entry.score)}</div>
+                    </div>
+                    {/* DPS total */}
+                    <div style={{ textAlign:'center' }}>
+                      <div style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:'var(--text-muted)' }}>DPS TOTAL</div>
+                      <div style={{ fontFamily:'var(--f-ui)', fontWeight:900, fontSize:'14px', color:'#34d399' }}>{formatNumber(entry.totalDps)}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+      </div>
+    </div>
+  );
+}
