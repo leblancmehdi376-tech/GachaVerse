@@ -237,7 +237,7 @@ function SynergiesPanel() {
             <div key={syn.def.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 12px', background:`${syn.def.color}10`, border:`1px solid ${syn.def.color}44`, borderRadius:8, boxShadow:`0 0 10px ${syn.def.glow}15` }}>
               <div style={{ width:24, height:24, flexShrink:0 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/sprites/synergies/${syn.def.id}.png`} alt={syn.def.label}
+                <img src={`/sprites/synergies/${syn.def.id}.webp`} alt={syn.def.label}
                   style={{ width:'100%', height:'100%', objectFit:'contain' }}
                   onError={e => { (e.target as HTMLImageElement).style.display='none'; (e.target as HTMLImageElement).parentElement!.innerHTML=`<span style="font-size:18px">${syn.def.icon}</span>`; }} />
               </div>
