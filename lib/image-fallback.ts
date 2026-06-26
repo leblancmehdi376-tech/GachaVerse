@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 // Extensions essayées dans l'ordre quand un visuel ne charge pas — utile
 // quand un fichier a été renommé en .png mais reste en réalité un .webp/.jpg
 // (changer juste l'extension dans l'explorateur ne convertit pas le fichier).
-export const IMAGE_FALLBACK_EXTENSIONS = ['png', 'webp', 'jpg', 'jpeg'] as const;
+export const IMAGE_FALLBACK_EXTENSIONS = ['webp', 'png', 'jpg', 'jpeg'] as const;
 
 // À partir d'un chemin de base SANS extension (ex: "/sprites/enemies/palier2/gaara"),
 // génère la liste ordonnée de candidats à essayer.
