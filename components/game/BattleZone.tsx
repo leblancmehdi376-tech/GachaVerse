@@ -420,7 +420,7 @@ export function BattleZone() {
                     {/* Logo de synergie — fallback emoji */}
                     <div style={{ width:16, height:16, flexShrink:0 }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`/sprites/synergies/${s.def.id}.png`} alt={s.def.label}
+                      <img src={`/sprites/synergies/${s.def.id}.webp`} alt={s.def.label}
                         style={{ width:'100%', height:'100%', objectFit:'contain', borderRadius:2 }}
                         onError={e => { (e.target as HTMLImageElement).style.display='none'; (e.target as HTMLImageElement).parentElement!.innerHTML=`<span style="font-size:12px">${s.def.icon}</span>`; }} />
                     </div>
