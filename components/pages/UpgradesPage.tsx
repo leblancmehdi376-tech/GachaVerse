@@ -247,12 +247,9 @@ function SynergiesPanel() {
               </div>
               <div style={{ display:'flex', gap:4 }}>
                 {syn.members.map(id => {
-                  const ppSrc = `/sprites/pp/${id}.png`;
                   return (
-                    <div key={id} style={{ width:24, height:24, borderRadius:5, overflow:'hidden', border:`1px solid ${syn.def.color}55` }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={ppSrc} alt={id} style={{ width:'100%', height:'100%', objectFit:'cover' }}
-                        onError={e => { const t=e.target as HTMLImageElement; t.style.display='none'; t.parentElement!.style.background=syn.def.color+'22'; t.parentElement!.innerHTML=`<span style="font-size:12px;display:flex;align-items:center;justify-content:center;height:100%">?</span>`; }} />
+                    <div key={id} style={{ width:24, height:24, borderRadius:5, overflow:'hidden', border:`1px solid ${syn.def.color}55`, background:`${syn.def.color}22`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span style={{ fontSize:12 }}>{syn.def.icon}</span>
                     </div>
                   );
                 })}
