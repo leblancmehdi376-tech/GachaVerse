@@ -303,8 +303,8 @@ export const ULTIMATE_DEFS: Record<string, UltimateDef> = {
   // ══ PRIMORDIAUX — cooldown 540s ═══════════════════════════════════════
   goku: {
     templateId:'goku', name:'Kamehameha', duration:1, cooldown:540,
-    description:'Rafale de 8000 clics automatiques instantanés & x3 DPC pendant 15s',
-    effect:{ instantClicks:12000, dpcMultiplier:3 }, animDuration:3200,
+    description:'Inflige instantanément 22% des PV max de l\'ennemi',
+    effect:{ instantDamagePctMaxHp:22 }, animDuration:2600, 
   },
   limule: {
     templateId:'limule', name:'Prédateur', duration:15, cooldown:540,
@@ -312,9 +312,9 @@ export const ULTIMATE_DEFS: Record<string, UltimateDef> = {
     effect:{ dpsMultiplier:2, coinMultiplier:2 }, animDuration:3200,  // ← nerfé : était x6/x2
   },
   arthur_leywin: {
-    templateId:'arthur_leywin', name:'Lame d\'Éther', duration:6, cooldown:540,
-    description:'Épées automatiques (4/s à 110% du DPS d\'équipe) pendant 6s',
-    effect:{ autoStrikes:{ perSecond:4, source:'teamDpsPct', value:110 } }, animDuration:3000,
+    templateId:'arthur_leywin', name:'Lame d\'Éther', duration:5, cooldown:540,
+    description:'Épées automatiques (4/s à 100% du DPS d\'équipe) pendant 5s',
+    effect:{ autoStrikes:{ perSecond:4, source:'teamDpsPct', value:100 } }, animDuration:3000,
   },
 
   // ══ TRANSCENDANT — cooldown 600s ══════════════════════════════════════
