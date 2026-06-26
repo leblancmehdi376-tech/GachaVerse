@@ -146,7 +146,7 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
     f('minato_base', 'Minato',              'minato', 100, 1),
     f('minato_evo1', 'Minato — 4ème Hokage','minato', 200, 6),
   ]),
-  ce('gilgamesh', 'Gilgamesh', 'CO', 2150, 'Fate', [
+  ce('gilgamesh', 'Gilgamesh', 'CO', 2050, 'Fate', [
     f('gilgamesh_base', 'Gilgamesh',               'gilgamesh', 100, 1),
     f('gilgamesh_evo1', 'Gilgamesh — Roi des Héros','gilgamesh', 200, 10),
   ]),
