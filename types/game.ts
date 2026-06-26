@@ -142,7 +142,7 @@ export function levelUpCost(level: number, rarity: Rarity): number {
     C:10, U:18, R:30, E:80, L:200, M:500, S:1500, CO:5000, P:15000, T:50000,
   };
   // Réduction légère de la croissance : 1.10 au lieu de 1.12
-  return Math.floor(rarityBase[rarity] * Math.pow(1.099, level - 1));
+  return Math.floor(rarityBase[rarity] * Math.pow(1.095, level - 1));
 }
 
 export function heroLevelUpCost(level: number): number {
@@ -205,6 +205,7 @@ export interface GameState {
   collection: Record<string, OwnedCharacter>;
   hero: HeroState;
   bossActive: boolean; bossTimeLeft: number; lastSaved: number;
+  bossAvoided: boolean;
   username: string;
   equipmentInventory: Record<string, number>;
   lastEquipmentDrop: string | null;
