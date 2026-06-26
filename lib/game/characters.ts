@@ -117,7 +117,7 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
     f('ichigo_evo1', 'Ichigo — Bankai', 'ichigo', 200, 4.5),
     f('ichigo_evo2', 'Ichigo — Vasto',  'ichigo', 300, 14),
   ]),
-  c('ouma',  'Kokichi Ouma', 'M', 560, 'Danganronpa'),
+  c('ouma',  'Kokichi Ouma', 'M', 1010, 'Danganronpa'),
   c('jax',   'Jax',          'M', 570, 'Digital Circus'),
   c('dazai', 'Dazai',        'M', 570, 'Bungou Stray Dogs'),
 
