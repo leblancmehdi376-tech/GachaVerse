@@ -294,8 +294,8 @@ export function generateEnemy(wave: number, palier: number): Enemy {
   const maxHp  = Math.floor(baseHp * hpMult);
 
   const pixelCoins = isBoss
-    ? Math.floor(65  * Math.pow(1.145, global - 1))
-    : Math.floor(25  * Math.pow(1.135, global - 1));
+    ? Math.floor(70  * Math.pow(1.148, global - 1))
+    : Math.floor(30  * Math.pow(1.138, global - 1));
 
   const gemsReward = isBoss ? Math.ceil(palier / 2) : (wave === 5 ? 1 : 0);
 
