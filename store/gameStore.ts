@@ -9,7 +9,7 @@ import {
 } from '@/types/game';
 import { generateEnemy } from '@/lib/game/enemies';
 import { rollCharacter, rollMulti, GACHA_COSTS } from '@/lib/game/gacha';
-import { getCharacterById, HERO_TEMPLATE, EVENT_EXCLUSIVE_IDS } from '@/lib/game/characters';
+import { getCharacterById, HERO_TEMPLATE } from '@/lib/game/characters';
 import { ITEM_DEFS } from '@/lib/game/items';
 import { computeActiveSynergies, calcDpsWithSynergies } from '@/lib/game/synergies';
 import { getUltimateDef } from '@/lib/game/ultimates';
@@ -98,6 +98,8 @@ interface GameStore extends GameState {
   savedAt: number;
   // Combat
   clickEnemy: () => ClickResult;
+  retreatFromBoss: () => void;
+  challengeBoss: () => void;
   tickDps: () => void;
   tickBossTimer: () => void;
   activateCharacterUltimate: (templateId: string, formIndex: number) => void;
@@ -138,7 +140,7 @@ const makeInitial = () => ({
   equippedTeam: [null, null, null, null] as (string|null)[],
   collection: {} as Record<string, OwnedCharacter>,
   hero: { level: 1, currentForm: 0, xp: 0 } as HeroState,
-  bossActive: false, bossTimeLeft: 0,
+  bossActive: false, bossTimeLeft: 0, bossAvoided: false,
   lastSaved: Date.now(),
   username: 'NEKOZ',
   quests: DAILY_QUESTS.map(q => ({ ...q, current: 0, done: false })),
@@ -161,6 +163,29 @@ export const useGameStore = create<GameStore>()(
       ...makeInitial(),
 
       // ─── Combat ───────────────────────────────────────────────────────
+      retreatFromBoss: () => {
+        const state = get();
+        if (!state.bossActive && state.wave !== 10) return;
+        set({
+          wave:         1,
+          bossActive:   false,
+          bossTimeLeft: 0,
+          bossAvoided:  true,
+          currentEnemy: generateEnemy(1, state.palier),
+        });
+      },
+
+      challengeBoss: () => {
+        const state = get();
+        set({
+          wave:         10,
+          bossActive:   true,
+          bossAvoided:  false,
+          bossTimeLeft: getPalierConfig(state.palier).bossTimerSeconds,
+          currentEnemy: generateEnemy(10, state.palier),
+        });
+      },
+
       clickEnemy: () => {
         const ult = useUltimateStore.getState();
         ult.registerClick();
@@ -527,13 +552,8 @@ export const useGameStore = create<GameStore>()(
         if (!owned) return;
         const tpl = getCharacterById(templateId);
         if (!tpl || !canEvolve(tpl, owned, get().inventory)) return;
-        // Persos event (arthur_leywin, jinwoo) : évolution gratuite en coins,
-        // seul l'item est requis
-        const isEvent = EVENT_EXCLUSIVE_IDS.includes(templateId);
-        if (!isEvent) {
-          const cost = evoCost(tpl.rarity, owned.currentForm);
-          if (!get().spendPixelCoins(cost)) return;
-        }
+        const cost = evoCost(tpl.rarity, owned.currentForm);
+        if (!get().spendPixelCoins(cost)) return;
         // Consomme l'item requis pour cette évolution si applicable
         const nextForm = tpl.forms?.[owned.currentForm + 1];
         const requiredItem = nextForm?.requiredItemId;
@@ -720,10 +740,16 @@ function resolveEnemyDeath(state: GameState & { quests: Quest[] }): Partial<Game
       }).catch(() => {});
     }
     // +20 gemmes à chaque palier franchi, en plus du loot normal du boss
-    return { pixelCoins:coins, nekoGems:gems + PALIER_PASS_GEMS, quests, wave:1, palier:next, maxPalierReached:Math.max(state.maxPalierReached,next), bossActive:false, bossTimeLeft:0, currentEnemy:generateEnemy(1,next), bossCrowns: bossCrownsBefore + 1 } as Partial<GameState & { quests: Quest[] }>;
+    return { pixelCoins:coins, nekoGems:gems + PALIER_PASS_GEMS, quests, wave:1, palier:next, maxPalierReached:Math.max(state.maxPalierReached,next), bossActive:false, bossTimeLeft:0, bossAvoided:false, currentEnemy:generateEnemy(1,next), bossCrowns: bossCrownsBefore + 1 } as Partial<GameState & { quests: Quest[] }>;
   }
   const nw = state.wave + 1;
-  if (nw === 10) return { pixelCoins:coins, nekoGems:gems, quests, wave:10, bossActive:true, bossTimeLeft:getPalierConfig(state.palier).bossTimerSeconds, currentEnemy:generateEnemy(10,state.palier) };
+  if (nw === 10) {
+    // Si le joueur a choisi d'éviter le boss → boucle sur vague 1
+    if (state.bossAvoided) {
+      return { pixelCoins:coins, nekoGems:gems, quests, wave:1, currentEnemy:generateEnemy(1, state.palier) };
+    }
+    return { pixelCoins:coins, nekoGems:gems, quests, wave:10, bossActive:true, bossTimeLeft:getPalierConfig(state.palier).bossTimerSeconds, currentEnemy:generateEnemy(10,state.palier) };
+  }
   const equipDrop = getEquipmentDrop();
   const newEquipmentInventory = equipDrop
     ? { ...state.equipmentInventory, [equipDrop]: (state.equipmentInventory[equipDrop] ?? 0) + 1 }
