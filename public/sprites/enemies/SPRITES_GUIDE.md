@@ -45,7 +45,7 @@ hollow.png | grand_fisher.png | ikkaku.png | renji.png | kenpachi.png | byakuya.
 enkidu.png | heracles_sf.png | mordred.png | karna.png | cu_chulainn.png | heracles_ubw.png | emiya.png | achilles.png | richard.png | iskandar.png (BOSS)
 
 ## PALIER 14 — Zelda Twilight Princess
-iria.png | telma.png | machaon.png | heracles.png | link_loup.png | matornia.png | auguste.png | gor_cobalt.png | roi_bulbin.png | ganondorf.png (BOSS)
+iria.png | telma.png | machaon.png | agent_crepuscule.png | link_loup.png | matornia.png | auguste.png | gor_cobalt.png | roi_bulbin.png | ganondorf.png (BOSS)
 
 ## PALIER 15 — R.E.P.O
 gnome.png | velo.png | rugrat.png | agent_crepuscule.png | moche.png | crane.png | laser.png | dress.png | xanto.png | nonne.png (BOSS)
