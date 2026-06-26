@@ -267,7 +267,7 @@ function ApologyOverlay({ strikeLevel, onSubmit }: ApologyOverlayProps) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 export function BattleZone() {
-  const { currentEnemy, equippedTeam, getHeroDpc, getTotalDps, clickEnemy, wave, palier, bossActive, bossTimeLeft, lastEquipmentDrop, setLastEquipmentDrop } = useGameStore();
+  const { currentEnemy, equippedTeam, getHeroDpc, getTotalDps, clickEnemy, retreatFromBoss, challengeBoss, wave, palier, bossActive, bossAvoided, bossTimeLeft, lastEquipmentDrop, setLastEquipmentDrop } = useGameStore();
   const [dmgs, setDmgs] = useState<Dmg[]>([]);
   const [hit,  setHit]  = useState(false);
   const [dropToast, setDropToast] = useState<string | null>(null);
@@ -465,6 +465,49 @@ export function BattleZone() {
             <span style={{ fontFamily:'var(--f-title)', letterSpacing:3, fontSize:16, position:'relative' }}>⚔ ATTAQUER</span>
             <span style={{ fontFamily:'var(--f-ui)', fontSize:10, fontWeight:400, opacity:0.5, position:'relative' }}>CLIQUEZ !</span>
           </button>
+
+          {/* Bouton RETRAITE — visible uniquement sur le boss (vague 10) */}
+          {(bossActive || wave === 10) && (
+            <button
+              onClick={e => { e.stopPropagation(); retreatFromBoss(); }}
+              style={{
+                padding: '13px 14px',
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.4)',
+                borderRadius: 10, cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.25)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.12)')}
+              title="Abandonner le boss et retourner à la vague 1"
+            >
+              <span style={{ fontSize: 18 }}>🏳️</span>
+              <span style={{ fontFamily:'var(--f-ui)', fontSize: 9, fontWeight: 700, color: '#f87171', letterSpacing: 1 }}>RETRAITE</span>
+            </button>
+          )}
+
+          {/* Bouton RETENTER — visible quand bossAvoided et pas en vague 10 */}
+          {bossAvoided && !bossActive && wave !== 10 && (
+            <button
+              onClick={e => { e.stopPropagation(); challengeBoss(); }}
+              style={{
+                padding: '13px 14px',
+                background: 'rgba(234,179,8,0.12)',
+                border: '1px solid rgba(234,179,8,0.5)',
+                borderRadius: 10, cursor: 'pointer',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                transition: 'background 0.2s',
+                animation: 'pulse 2s infinite',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(234,179,8,0.25)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(234,179,8,0.12)')}
+              title="Retenter le boss"
+            >
+              <span style={{ fontSize: 18 }}>⚡</span>
+              <span style={{ fontFamily:'var(--f-ui)', fontSize: 9, fontWeight: 700, color: '#fbbf24', letterSpacing: 1 }}>BOSS</span>
+            </button>
+          )}
         </div>
       </div>
 
