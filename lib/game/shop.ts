@@ -77,7 +77,7 @@ export interface EquipmentChestDef {
 
 export const EQUIPMENT_CHESTS: EquipmentChestDef[] = [
   {
-    id: 'chest_common', label: 'Coffre Commun', emoji: '📦', gems: 100,
+    id: 'chest_common', label: 'Coffre Commun', emoji: '📦', gems: 80,
     color: '#9ca3af', glow: '#6b7280',
     dropRates: [
       { label:'Commun',      pct:'94.13%', color:'#9ca3af' },
@@ -91,7 +91,7 @@ export const EQUIPMENT_CHESTS: EquipmentChestDef[] = [
     ],
   },
   {
-    id: 'chest_rare', label: 'Coffre Rare', emoji: '🎁', gems: 400,
+    id: 'chest_rare', label: 'Coffre Rare', emoji: '🎁', gems: 280,
     color: '#60a5fa', glow: '#3b82f6',
     dropRates: [
       { label:'Commun',      pct:'45.92%', color:'#9ca3af' },
@@ -105,7 +105,7 @@ export const EQUIPMENT_CHESTS: EquipmentChestDef[] = [
     ],
   },
   {
-    id: 'chest_epic', label: 'Coffre Épique', emoji: '💎', gems: 700,
+    id: 'chest_epic', label: 'Coffre Épique', emoji: '💎', gems: 500,
     color: '#c084fc', glow: '#9333ea',
     dropRates: [
       { label:'Commun',      pct:'6.54%',  color:'#9ca3af' },
