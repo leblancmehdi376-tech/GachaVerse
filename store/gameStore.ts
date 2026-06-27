@@ -10,7 +10,8 @@ import {
 import { generateEnemy } from '@/lib/game/enemies';
 import { rollCharacter, rollMulti, GACHA_COSTS } from '@/lib/game/gacha';
 import { getCharacterById, HERO_TEMPLATE } from '@/lib/game/characters';
-import { ITEM_DEFS } from '@/lib/game/items';
+import { ITEM_DEFS, rollEquipmentChest } from '@/lib/game/items';
+import { EQUIPMENT_CHESTS } from '@/lib/game/shop';
 import { computeActiveSynergies, calcDpsWithSynergies } from '@/lib/game/synergies';
 import { getUltimateDef } from '@/lib/game/ultimates';
 import { auth } from '@/lib/firebase/config';
@@ -38,6 +39,32 @@ const DAILY_QUESTS: Omit<Quest,'current'|'done'>[] = [
 // Ajout de deux niveaux supplémentaires : coûts et multiplicateurs
 export const GOLD_UPGRADE_COSTS = [5_000, 25_000, 100_000, 400_000, 1_000_000, 5_000_000];
 export const GOLD_MULTIPLIERS   = [1, 1.15, 1.30, 1.50, 1.75, 2.00];
+
+// ── Anti-exploit multi-onglets ─────────────────────────────────────────────
+const LOCAL_STORAGE_KEY = 'gachaverse_save';
+const BROADCAST_CHANNEL = typeof window !== 'undefined' ? new BroadcastChannel('gachaverse_state') : null;
+
+// Sauvegarde immédiate en localStorage + diffuse aux autres onglets
+function broadcastAndSaveLocal() {
+  if (typeof window === 'undefined') return;
+  try {
+    const s = useGameStore.getState();
+    const snapshot = { nekoGems: s.nekoGems, collection: s.collection, equipmentInventory: s.equipmentInventory, savedAt: Date.now() };
+    const raw = JSON.stringify(snapshot);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) ?? '{}'), ...snapshot }));
+    BROADCAST_CHANNEL?.postMessage({ type: 'PULL_SYNC', data: snapshot });
+  } catch { /* ignore */ }
+}
+
+// Écoute les mises à jour des autres onglets
+if (BROADCAST_CHANNEL) {
+  BROADCAST_CHANNEL.onmessage = (event) => {
+    if (event.data?.type === 'PULL_SYNC') {
+      const { nekoGems, collection, equipmentInventory } = event.data.data;
+      useGameStore.setState({ nekoGems, collection, equipmentInventory });
+    }
+  };
+}
 
 // Récompenses de progression
 export const PALIER_PASS_GEMS    = 20;     // gemmes données à chaque palier franchi (mort du boss)
@@ -87,6 +114,7 @@ interface GameStore extends GameState {
   ensureDailyShop: () => void;
   buyShopCharacter: (slotIndex: number) => void;
   buyGemsWithOrbs: (packId: string) => void;
+  buyEquipmentChest: (tier: 'common' | 'rare' | 'epic') => string | null;
   // Pack de démarrage Early Access
   starterPackClaimed: boolean;
   isStarterPackAvailable: () => boolean;
@@ -354,6 +382,20 @@ export const useGameStore = create<GameStore>()(
         set(state => ({ voidOrbs: state.voidOrbs - pack.orbs, nekoGems: state.nekoGems + pack.gems }));
       },
 
+      buyEquipmentChest: (tier) => {
+        const def = EQUIPMENT_CHESTS.find(c => c.id === `chest_${tier}`);
+        if (!def || get().nekoGems < def.gems) return null;
+        const itemId = rollEquipmentChest(tier);
+        set(state => ({
+          nekoGems: state.nekoGems - def.gems,
+          equipmentInventory: {
+            ...state.equipmentInventory,
+            [itemId]: (state.equipmentInventory[itemId] ?? 0) + 1,
+          },
+        }));
+        return itemId;
+      },
+
       // ─── Pack de démarrage Early Access (24h après le lancement) ───────
       isStarterPackAvailable: () => {
         if (get().starterPackClaimed) return false;
@@ -618,12 +660,16 @@ export const useGameStore = create<GameStore>()(
       pullSingle: () => {
         if (get().nekoGems < GACHA_COSTS.single) return null;
         set(s => ({ nekoGems: s.nekoGems - GACHA_COSTS.single }));
-        const id = rollCharacter(); get().addToCollection(id); return id;
+        const id = rollCharacter(); get().addToCollection(id);
+        broadcastAndSaveLocal();
+        return id;
       },
       pullMulti: () => {
         if (get().nekoGems < GACHA_COSTS.multi10) return null;
         set(s => ({ nekoGems: s.nekoGems - GACHA_COSTS.multi10 }));
-        const ids = rollMulti(); ids.forEach(id => get().addToCollection(id)); return ids;
+        const ids = rollMulti(); ids.forEach(id => get().addToCollection(id));
+        broadcastAndSaveLocal();
+        return ids;
       },
       addToCollection: (templateId) => {
         const ex = get().collection[templateId];
