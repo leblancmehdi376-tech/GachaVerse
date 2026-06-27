@@ -267,7 +267,7 @@ function ApologyOverlay({ strikeLevel, onSubmit }: ApologyOverlayProps) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 export function BattleZone() {
-  const { currentEnemy, equippedTeam, getHeroDpc, getTotalDps, clickEnemy, retreatFromBoss, challengeBoss, wave, palier, bossActive, bossAvoided, bossTimeLeft, lastEquipmentDrop, setLastEquipmentDrop } = useGameStore();
+  const { currentEnemy, equippedTeam, getHeroDpc, getTotalDps, clickEnemy, retreatFromBoss, challengeBoss, wave, palier, bossActive, bossAvoided, bossTimeLeft, lastEquipmentDrop, setLastEquipmentDrop, ultUsedThisFight } = useGameStore();
   const [dmgs, setDmgs] = useState<Dmg[]>([]);
   const [hit,  setHit]  = useState(false);
   const [dropToast, setDropToast] = useState<string | null>(null);
@@ -402,9 +402,20 @@ export function BattleZone() {
           <div style={{ background:'rgba(15,10,30,0.85)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:12, padding:'10px 12px 8px', display:'flex', flexDirection:'column', alignItems:'center', gap:8 }}>
             <span style={{ fontFamily:'var(--f-ui)', fontSize:9, fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:2 }}>COMPAGNONS</span>
             <div style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
-              {equippedTeam.map((tid, i) => (
-                <AllyCard key={i} templateId={tid ?? ''} onManage={() => {}} />
-              ))}
+              {equippedTeam.map((tid, i) => {
+                const isLocked = !!tid && ultUsedThisFight.includes(tid);
+                return (
+                  <div key={i} style={{ position:'relative' }}>
+                    <AllyCard templateId={tid ?? ''} onManage={() => {}} />
+                    {isLocked && (
+                      <div title="Ult utilisé — retrait bloqué jusqu'à la fin du combat"
+                        style={{ position:'absolute', top:2, right:2, background:'rgba(0,0,0,0.75)', borderRadius:4, padding:'1px 3px', fontSize:10, lineHeight:1, pointerEvents:'none' }}>
+                        🔒
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div style={{ flex:1 }} />
