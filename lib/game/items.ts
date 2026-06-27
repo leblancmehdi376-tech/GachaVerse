@@ -299,3 +299,58 @@ export function getItemDrop(): string | null {
   }
   return null;
 }
+
+// ── Coffres d'équipement ────────────────────────────────────────────────────
+export type ChestTier = 'common' | 'rare' | 'epic';
+
+// Retourne un ID d'équipement aléatoire selon les drop rates du coffre
+export function rollEquipmentChest(tier: ChestTier): string {
+  const roll = Math.random() * 100;
+
+  // Seuils cumulatifs du plus rare au plus commun
+  const thresholds: Record<ChestTier, { rarity: string; threshold: number }[]> = {
+    common: [
+      { rarity:'T',  threshold: 0    },   // 0.00% — pas de T dans coffre commun
+      { rarity:'P',  threshold: 0.01 },   // 0.01%
+      { rarity:'CO', threshold: 0.11 },   // 0.10%
+      { rarity:'S',  threshold: 0.41 },   // 0.30%
+      { rarity:'L',  threshold: 1.13 },   // 0.72%
+      { rarity:'E',  threshold: 2.66 },   // 1.53%
+      { rarity:'R',  threshold: 5.87 },   // 3.21%
+      { rarity:'C',  threshold: 100  },   // 94.13%
+    ],
+    rare: [
+      { rarity:'T',  threshold: 0.05 },   // 0.05%
+      { rarity:'P',  threshold: 0.83 },   // 0.78%
+      { rarity:'CO', threshold: 1.83 },   // 1.00%
+      { rarity:'S',  threshold: 3.81 },   // 1.98%
+      { rarity:'L',  threshold: 10.39 },  // 6.58%
+      { rarity:'E',  threshold: 24.90 },  // 14.51%
+      { rarity:'R',  threshold: 54.08 },  // 29.18%
+      { rarity:'C',  threshold: 100   },  // 45.92%
+    ],
+    epic: [
+      { rarity:'T',  threshold: 0.41 },   // 0.41%
+      { rarity:'P',  threshold: 5.93 },   // 5.52%
+      { rarity:'CO', threshold: 13.44 },  // 7.51%
+      { rarity:'S',  threshold: 22.77 },  // 9.33%
+      { rarity:'L',  threshold: 37.71 },  // 14.94%
+      { rarity:'E',  threshold: 75.43 },  // 37.72%
+      { rarity:'R',  threshold: 91.46 },  // 16.03%
+      { rarity:'C',  threshold: 100   },  // 8.54%
+    ],
+  };
+
+  const steps = thresholds[tier];
+  let selectedRarity = 'C';
+  for (const step of steps) {
+    if (roll < step.threshold) { selectedRarity = step.rarity; break; }
+  }
+
+  // Filtre les équipements de cette rareté
+  const pool = Object.values(EQUIPMENT_DEFS).filter(e => e.rarity === selectedRarity);
+
+  // Si aucun équipement de cette rareté n'existe, fallback vers le commun
+  const fallback = pool.length > 0 ? pool : Object.values(EQUIPMENT_DEFS).filter(e => e.rarity === 'C');
+  return fallback[Math.floor(Math.random() * fallback.length)].id;
+}
