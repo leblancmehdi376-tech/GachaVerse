@@ -169,6 +169,7 @@ const makeInitial = () => ({
   collection: {} as Record<string, OwnedCharacter>,
   hero: { level: 1, currentForm: 0, xp: 0 } as HeroState,
   bossActive: false, bossTimeLeft: 0, bossAvoided: false,
+  ultUsedThisFight: [] as string[],
   lastSaved: Date.now(),
   username: 'NEKOZ',
   quests: DAILY_QUESTS.map(q => ({ ...q, current: 0, done: false })),
@@ -281,6 +282,13 @@ export const useGameStore = create<GameStore>()(
         if (!def) return;
         const ultState = useUltimateStore.getState();
         if ((ultState.cooldowns[templateId] ?? 0) > 0) return; // pas prêt, sécurité
+
+        // Marque ce perso comme ayant utilisé son ult pendant ce combat
+        set(s => ({
+          ultUsedThisFight: s.ultUsedThisFight.includes(templateId)
+            ? s.ultUsedThisFight
+            : [...s.ultUsedThisFight, templateId],
+        }));
 
         const eff   = def.effect;
         const state = get();
@@ -651,6 +659,9 @@ export const useGameStore = create<GameStore>()(
         });
       },
       unequipCharacter: (slot) => set(s => {
+        const tid = s.equippedTeam[slot];
+        // Bloque le retrait si le perso a utilisé son ult pendant ce combat
+        if (tid && s.ultUsedThisFight.includes(tid)) return {};
         const t = [...s.equippedTeam] as (string|null)[];
         t[slot] = null;
         return { equippedTeam: t };
@@ -786,15 +797,15 @@ function resolveEnemyDeath(state: GameState & { quests: Quest[] }): Partial<Game
       }).catch(() => {});
     }
     // +20 gemmes à chaque palier franchi, en plus du loot normal du boss
-    return { pixelCoins:coins, nekoGems:gems + PALIER_PASS_GEMS, quests, wave:1, palier:next, maxPalierReached:Math.max(state.maxPalierReached,next), bossActive:false, bossTimeLeft:0, bossAvoided:false, currentEnemy:generateEnemy(1,next), bossCrowns: bossCrownsBefore + 1 } as Partial<GameState & { quests: Quest[] }>;
+    return { pixelCoins:coins, nekoGems:gems + PALIER_PASS_GEMS, quests, wave:1, palier:next, maxPalierReached:Math.max(state.maxPalierReached,next), bossActive:false, bossTimeLeft:0, bossAvoided:false, ultUsedThisFight:[], currentEnemy:generateEnemy(1,next), bossCrowns: bossCrownsBefore + 1 } as Partial<GameState & { quests: Quest[] }>;
   }
   const nw = state.wave + 1;
   if (nw === 10) {
     // Si le joueur a choisi d'éviter le boss → boucle sur vague 1
     if (state.bossAvoided) {
-      return { pixelCoins:coins, nekoGems:gems, quests, wave:1, currentEnemy:generateEnemy(1, state.palier) };
+      return { pixelCoins:coins, nekoGems:gems, quests, wave:1, ultUsedThisFight:[], currentEnemy:generateEnemy(1, state.palier) };
     }
-    return { pixelCoins:coins, nekoGems:gems, quests, wave:10, bossActive:true, bossTimeLeft:getPalierConfig(state.palier).bossTimerSeconds, currentEnemy:generateEnemy(10,state.palier) };
+    return { pixelCoins:coins, nekoGems:gems, quests, wave:10, bossActive:true, bossTimeLeft:getPalierConfig(state.palier).bossTimerSeconds, ultUsedThisFight:[], currentEnemy:generateEnemy(10,state.palier) };
   }
   const equipDrop = getEquipmentDrop();
   const newEquipmentInventory = equipDrop
@@ -805,7 +816,7 @@ function resolveEnemyDeath(state: GameState & { quests: Quest[] }): Partial<Game
     nekoGems:gems,
     quests,
     wave:nw,
-    currentEnemy:generateEnemy(nw,state.palier),
+    ultUsedThisFight:[], currentEnemy:generateEnemy(nw,state.palier),
     equipmentInventory:newEquipmentInventory,
     lastEquipmentDrop: equipDrop ?? null,
   };
