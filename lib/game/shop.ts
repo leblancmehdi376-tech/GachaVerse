@@ -77,7 +77,7 @@ export interface EquipmentChestDef {
 
 export const EQUIPMENT_CHESTS: EquipmentChestDef[] = [
   {
-    id: 'chest_common', label: 'Coffre Commun', emoji: '📦', gems: 200,
+    id: 'chest_common', label: 'Coffre Commun', emoji: '📦', gems: 100,
     color: '#9ca3af', glow: '#6b7280',
     dropRates: [
       { label:'Commun',      pct:'94.13%', color:'#9ca3af' },
@@ -91,7 +91,7 @@ export const EQUIPMENT_CHESTS: EquipmentChestDef[] = [
     ],
   },
   {
-    id: 'chest_rare', label: 'Coffre Rare', emoji: '🎁', gems: 800,
+    id: 'chest_rare', label: 'Coffre Rare', emoji: '🎁', gems: 400,
     color: '#60a5fa', glow: '#3b82f6',
     dropRates: [
       { label:'Commun',      pct:'45.92%', color:'#9ca3af' },
@@ -105,17 +105,17 @@ export const EQUIPMENT_CHESTS: EquipmentChestDef[] = [
     ],
   },
   {
-    id: 'chest_epic', label: 'Coffre Épique', emoji: '💎', gems: 1500,
+    id: 'chest_epic', label: 'Coffre Épique', emoji: '💎', gems: 700,
     color: '#c084fc', glow: '#9333ea',
     dropRates: [
-      { label:'Commun',      pct:'8.54%',  color:'#9ca3af' },
-      { label:'Rare',        pct:'16.03%', color:'#60a5fa' },
-      { label:'Épique',      pct:'37.72%', color:'#c084fc' },
-      { label:'Légendaire',  pct:'14.94%', color:'#fbbf24' },
-      { label:'Stellaire',   pct:'9.33%',  color:'#ffffff' },
-      { label:'Cosmique',    pct:'7.51%',  color:'#34d399' },
-      { label:'Primordial',  pct:'5.52%',  color:'#ff6b35' },
-      { label:'Transcendant',pct:'0.41%',  color:'#e879f9' },
+      { label:'Commun',      pct:'6.54%',  color:'#9ca3af' },
+      { label:'Rare',        pct:'14.03%', color:'#60a5fa' },
+      { label:'Épique',      pct:'35.72%', color:'#c084fc' },
+      { label:'Légendaire',  pct:'16.94%', color:'#fbbf24' },
+      { label:'Stellaire',   pct:'10.83%',  color:'#ffffff' },
+      { label:'Cosmique',    pct:'8.51%',  color:'#34d399' },
+      { label:'Primordial',  pct:'6.52%',  color:'#ff6b35' },
+      { label:'Transcendant',pct:'0.91%',  color:'#e879f9' },
     ],
   },
 ];
