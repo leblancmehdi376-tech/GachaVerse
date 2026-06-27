@@ -63,3 +63,59 @@ export function generateDailyShopCharacters(): string[] {
 export const LAUNCH_TIMESTAMP = new Date('2026-06-18T22:01:00Z').getTime();
 export const STARTER_PACK_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h après le lancement
 export const STARTER_PACK_REWARDS = { gems: 10, voidOrbs: 1 };
+
+// ── Coffres d'équipement (achetés en gemmes) ──────────────────────────────
+export interface EquipmentChestDef {
+  id:       string;
+  label:    string;
+  emoji:    string;
+  gems:     number;
+  color:    string;
+  glow:     string;
+  dropRates: { label: string; pct: string; color: string }[];
+}
+
+export const EQUIPMENT_CHESTS: EquipmentChestDef[] = [
+  {
+    id: 'chest_common', label: 'Coffre Commun', emoji: '📦', gems: 200,
+    color: '#9ca3af', glow: '#6b7280',
+    dropRates: [
+      { label:'Commun',      pct:'94.13%', color:'#9ca3af' },
+      { label:'Rare',        pct:'3.21%',  color:'#60a5fa' },
+      { label:'Épique',      pct:'1.53%',  color:'#c084fc' },
+      { label:'Légendaire',  pct:'0.72%',  color:'#fbbf24' },
+      { label:'Stellaire',   pct:'0.30%',  color:'#ffffff' },
+      { label:'Cosmique',    pct:'0.10%',  color:'#34d399' },
+      { label:'Primordial',  pct:'0.01%',  color:'#ff6b35' },
+      { label:'Transcendant',pct:'0.00%',  color:'#e879f9' },
+    ],
+  },
+  {
+    id: 'chest_rare', label: 'Coffre Rare', emoji: '🎁', gems: 800,
+    color: '#60a5fa', glow: '#3b82f6',
+    dropRates: [
+      { label:'Commun',      pct:'45.92%', color:'#9ca3af' },
+      { label:'Rare',        pct:'29.18%', color:'#60a5fa' },
+      { label:'Épique',      pct:'14.51%', color:'#c084fc' },
+      { label:'Légendaire',  pct:'6.58%',  color:'#fbbf24' },
+      { label:'Stellaire',   pct:'1.98%',  color:'#ffffff' },
+      { label:'Cosmique',    pct:'1.00%',  color:'#34d399' },
+      { label:'Primordial',  pct:'0.78%',  color:'#ff6b35' },
+      { label:'Transcendant',pct:'0.05%',  color:'#e879f9' },
+    ],
+  },
+  {
+    id: 'chest_epic', label: 'Coffre Épique', emoji: '💎', gems: 1500,
+    color: '#c084fc', glow: '#9333ea',
+    dropRates: [
+      { label:'Commun',      pct:'8.54%',  color:'#9ca3af' },
+      { label:'Rare',        pct:'16.03%', color:'#60a5fa' },
+      { label:'Épique',      pct:'37.72%', color:'#c084fc' },
+      { label:'Légendaire',  pct:'14.94%', color:'#fbbf24' },
+      { label:'Stellaire',   pct:'9.33%',  color:'#ffffff' },
+      { label:'Cosmique',    pct:'7.51%',  color:'#34d399' },
+      { label:'Primordial',  pct:'5.52%',  color:'#ff6b35' },
+      { label:'Transcendant',pct:'0.41%',  color:'#e879f9' },
+    ],
+  },
+];
