@@ -139,7 +139,7 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
   ce('vegeta', 'Végéta', 'CO', 2500, 'Dragon Ball Z', [
     f('vegeta_base', 'Végéta',            'vegeta', 100, 1),
     f('vegeta_evo1', 'Végéta SS',         'vegeta', 200, 8),
-    f('vegeta_evo2', 'Végéta SS Divin',   'vegeta', 300, 18),
+    f('vegeta_evo2', 'Végéta SS Divin',   'vegeta', 300, 26),
     f('vegeta_evo3', 'Végéta SS Blue',    'vegeta', 400, 90),
   ]),
   ce('minato', 'Minato', 'CO', 1900, 'Naruto', [
@@ -162,7 +162,7 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
   ce('goku', 'Goku', 'P', 5000, 'Dragon Ball Z', [
     f('goku_base', 'Goku',                'goku', 100,  1),
     f('goku_evo1', 'Goku Super Saiyen',   'goku', 200,  7),
-    f('goku_evo2', 'Goku Super Saiyen 3', 'goku', 300,  35),
+    f('goku_evo2', 'Goku Super Saiyen 3', 'goku', 300,  38),
     f('goku_evo3', 'Goku SS Divin',       'goku', 400,  60),
     f('goku_evo4', 'Goku SS Blue',        'goku', 500,  100),
     f('goku_evo5', 'Goku Signe UI',       'goku', 600,  170),
