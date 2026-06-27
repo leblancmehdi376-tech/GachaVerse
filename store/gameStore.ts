@@ -660,8 +660,9 @@ export const useGameStore = create<GameStore>()(
       },
       unequipCharacter: (slot) => set(s => {
         const tid = s.equippedTeam[slot];
-        // Bloque le retrait si le perso a utilisé son ult pendant ce combat
-        if (tid && s.ultUsedThisFight.includes(tid)) return {};
+        // Bloque le retrait uniquement si : ult utilisé ET on est sur le boss (wave 10)
+        const onBoss = s.bossActive || s.wave === 10;
+        if (tid && onBoss && s.ultUsedThisFight.includes(tid)) return {};
         const t = [...s.equippedTeam] as (string|null)[];
         t[slot] = null;
         return { equippedTeam: t };
