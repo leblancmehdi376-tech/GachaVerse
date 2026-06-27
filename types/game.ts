@@ -206,6 +206,7 @@ export interface GameState {
   hero: HeroState;
   bossActive: boolean; bossTimeLeft: number; lastSaved: number;
   bossAvoided: boolean;
+  ultUsedThisFight: string[];
   username: string;
   equipmentInventory: Record<string, number>;
   lastEquipmentDrop: string | null;
