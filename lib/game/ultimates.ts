@@ -296,8 +296,8 @@ export const ULTIMATE_DEFS: Record<string, UltimateDef> = {
   },
   jinwoo: {
     templateId:'jinwoo', name:'Arise', duration:7, cooldown:480,
-    description:'Soldats de l\'ombre (2 attaques/s à 60% du DPS d\'équipe) pendant 7s',
-    effect:{ autoStrikes:{ perSecond:2, source:'teamDpsPct', value:60 } }, animDuration:2600, // ← nerfé
+    description:'Soldats de l\'ombre (3 attaques/s à 80% du DPS d\'équipe) pendant 7s',
+    effect:{ autoStrikes:{ perSecond:3, source:'teamDpsPct', value:80 } }, animDuration:2600, // ← nerfé
   },
 
   // ══ PRIMORDIAUX — cooldown 540s ═══════════════════════════════════════
