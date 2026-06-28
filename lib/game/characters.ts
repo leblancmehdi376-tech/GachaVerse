@@ -151,9 +151,9 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
     f('gilgamesh_evo1', 'Gilgamesh — Roi des Héros','gilgamesh', 200, 10),
   ]),
   c('link_midona','Link & Midona',    'CO', 1800, 'The Legend of Zelda'),
-  ce('jinwoo', 'Sung Jin Woo', 'CO', 2400, 'Solo Leveling', [
+  ce('jinwoo', 'Sung Jin Woo', 'CO', 2450, 'Solo Leveling', [
     f('jinwoo_base', 'Sung Jin Woo',                     'jinwoo', 100, 1),
-    f('jinwoo_evo1', 'Sung Jin Woo — Monarque Éveillé',  'jinwoo', 200, 5,  'elixir_vie'),
+    f('jinwoo_evo1', 'Sung Jin Woo — Monarque Éveillé',  'jinwoo', 200, 6.5,  'elixir_vie'),
     f('jinwoo_evo2', 'Sung Jin Woo — Seigneur des Ombres','jinwoo', 300, 16, 'manteau_ombre'),
     f('jinwoo_evo3', 'Sung Jin Woo — Monarque des Ombres','jinwoo', 400, 50, 'beru'),
   ]),
