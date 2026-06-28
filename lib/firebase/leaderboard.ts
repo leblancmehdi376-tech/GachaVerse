@@ -12,12 +12,12 @@ export interface LeaderboardEntry {
   totalDps: number;
 }
 
-export async function getTopLeaderboard(maxEntries = 20): Promise<LeaderboardEntry[]> {
+export async function getTopLeaderboard(maxEntries = 50): Promise<LeaderboardEntry[]> {
   if (!db) return [];
   try {
     // Récupère tous les documents et trie côté client — évite les problèmes
     // d'index manquant ou de champs absents dans les vieilles sauvegardes.
-    const snapshot = await getDocs(query(collection(db, 'saves'), limit(100)));
+    const snapshot = await getDocs(query(collection(db, 'saves'), limit(200)));
     const entries: LeaderboardEntry[] = snapshot.docs.map(docSnap => {
       const data = docSnap.data() as Record<string, unknown>;
       const palier      = typeof data.palier      === 'number' ? data.palier      : 0;
