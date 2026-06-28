@@ -9,7 +9,9 @@ import { formatNumber } from '@/lib/game/format';
 import {
   CROWN_GEM_PACKS, ORB_GEM_PACKS, GEM_GOLD_PACKS, BOOST_COST_CROWNS, BOOST_DURATION_MS, BOOST_MULTIPLIER,
   SHOP_CHAR_PRICE_ORBS, LAUNCH_TIMESTAMP, STARTER_PACK_WINDOW_MS, STARTER_PACK_REWARDS,
+  EQUIPMENT_CHESTS,
 } from '@/lib/game/shop';
+import { getEquipmentDef } from '@/lib/game/items';
 
 function formatDuration(ms: number): string {
   if (ms <= 0) return '00:00';
@@ -33,11 +35,12 @@ export function ShopPage() {
     nekoGems, bossCrowns, voidOrbs, palier,
     dpsBoostEndsAt, goldBoostEndsAt, isDpsBoostActive, isGoldBoostActive,
     buyDpsBoost, buyGoldBoost, buyGemsWithCrowns, buyGoldWithGems,
-    dailyShop, ensureDailyShop, buyShopCharacter, buyGemsWithOrbs,
+    dailyShop, ensureDailyShop, buyShopCharacter, buyGemsWithOrbs, buyEquipmentChest,
     starterPackClaimed, isStarterPackAvailable, claimStarterPack,
   } = useGameStore();
 
   const [, setTick] = useState(0);
+  const [chestResult, setChestResult] = useState<{ itemId: string; tier: string } | null>(null);
   useEffect(() => {
     ensureDailyShop();
     const id = setInterval(() => setTick(t => t + 1), 1000);
@@ -236,6 +239,66 @@ export function ShopPage() {
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* ── COFFRES D'ÉQUIPEMENT ─────────────────────────────────────── */}
+        <div style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:'14px', padding:'18px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' }}>
+            <div style={{ width:'4px', height:'18px', background:'linear-gradient(180deg,#fbbf24,#f59e0b)', borderRadius:'2px', boxShadow:'0 0 8px #fbbf24' }} />
+            <span style={{ fontFamily:'var(--f-title)', fontSize:'14px', fontWeight:700, color:'#fbbf24', letterSpacing:'2px' }}>COFFRES D&apos;ÉQUIPEMENT</span>
+          </div>
+
+          {chestResult && (() => {
+            const item = getEquipmentDef(chestResult.itemId);
+            if (!item) return null;
+            return (
+              <div style={{ marginBottom:'14px', padding:'12px 16px', background:'rgba(74,222,128,0.08)', border:'1px solid rgba(74,222,128,0.3)', borderRadius:'10px', display:'flex', alignItems:'center', gap:'12px' }}>
+                <span style={{ fontSize:'24px' }}>{item.icon}</span>
+                <div>
+                  <div style={{ fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'13px', color:'#4ade80' }}>Équipement obtenu !</div>
+                  <div style={{ fontFamily:'var(--f-ui)', fontSize:'12px', color:item.color, fontWeight:700 }}>{item.name}</div>
+                </div>
+                <button onClick={() => setChestResult(null)} style={{ marginLeft:'auto', background:'none', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:'16px' }}>✕</button>
+              </div>
+            );
+          })()}
+
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
+            {EQUIPMENT_CHESTS.map(chest => {
+              const canBuy = nekoGems >= chest.gems;
+              return (
+                <div key={chest.id} style={{ background:`${chest.color}0a`, border:`1px solid ${chest.color}33`, borderRadius:'12px', padding:'14px', display:'flex', flexDirection:'column', alignItems:'center', gap:'8px' }}>
+                  <span style={{ fontSize:'32px', filter:`drop-shadow(0 0 8px ${chest.glow})` }}>{chest.emoji}</span>
+                  <span style={{ fontFamily:'var(--f-title)', fontSize:'12px', fontWeight:700, color:chest.color, letterSpacing:'1px', textAlign:'center' }}>{chest.label.toUpperCase()}</span>
+                  <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:'2px', margin:'4px 0' }}>
+                    {chest.dropRates.map(r => (
+                      <div key={r.label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                        <span style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:r.color, fontWeight:600 }}>{r.label}</span>
+                        <span style={{ fontFamily:'var(--f-ui)', fontSize:'9px', color:'var(--text-muted)' }}>{r.pct}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const tier = chest.id.replace('chest_', '') as 'common' | 'rare' | 'epic';
+                      const result = buyEquipmentChest(tier);
+                      if (result) setChestResult({ itemId: result, tier: chest.id });
+                    }}
+                    disabled={!canBuy}
+                    style={{
+                      width:'100%', padding:'9px', borderRadius:'8px', cursor:canBuy?'pointer':'not-allowed',
+                      background:canBuy?`${chest.color}22`:'rgba(255,255,255,0.03)',
+                      border:`1px solid ${canBuy?chest.color+'66':'var(--border)'}`,
+                      fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'12px',
+                      color:canBuy?chest.color:'var(--text-muted)',
+                      display:'flex', alignItems:'center', justifyContent:'center', gap:'5px',
+                    }}>
+                    💎 {chest.gems.toLocaleString()}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
 
