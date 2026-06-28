@@ -146,7 +146,7 @@ export function levelUpCost(level: number, rarity: Rarity): number {
 }
 
 export function heroLevelUpCost(level: number): number {
-  return Math.floor(200 * Math.pow(1.21, level - 1)); // nerfé
+  return Math.floor(200 * Math.pow(1.22, level - 1)); // nerfé
 }
 
 // ── Coût d'évolution ─────────────────────────────────────────────────────
@@ -209,5 +209,6 @@ export interface GameState {
   ultUsedThisFight: string[];
   username: string;
   equipmentInventory: Record<string, number>;
+  championInventory:  Record<string, number>; // doublons 7★ en attente
   lastEquipmentDrop: string | null;
 }
