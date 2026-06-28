@@ -108,11 +108,11 @@ export function MarketplacePage() {
     if (formType === 'item') {
       const qty = (store.inventory?.[formItemId] ?? 0);
       if (qty < formQty) { showMsg(false, 'Pas assez en inventaire'); setFormLoading(false); return; }
-      store.removeItem(formItemId, formQty);
+      store.addItem(formItemId, -formQty);
     } else if (formType === 'equipment') {
       const qty = store.equipmentInventory?.[formItemId] ?? 0;
       if (qty < 1) { showMsg(false, 'Item non disponible'); setFormLoading(false); return; }
-      store.removeEquipment(formItemId, 1);
+      store.addEquipment(formItemId, -1);
     } else {
       // character — on le retire de l'équipe si équipé
       store.unequipCharacterById?.(formItemId);
