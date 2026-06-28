@@ -34,7 +34,19 @@ export async function getTopLeaderboard(maxEntries = 20): Promise<LeaderboardEnt
     });
 
     // Tri côté client par totalDps DESC puis score DESC
-    return entries
+    // Déduplique par username — garde la meilleure entrée (totalDps le plus élevé)
+    const seen = new Map<string, typeof entries[0]>();
+    for (const entry of entries) {
+      const key = entry.username.toLowerCase();
+      const existing = seen.get(key);
+      if (!existing || entry.totalDps > existing.totalDps || (!existing.totalDps && entry.score > existing.score)) {
+        seen.set(key, entry);
+      }
+    }
+    const deduped = Array.from(seen.values());
+
+    // Tri par totalDps DESC puis score DESC
+    return deduped
       .sort((a, b) => b.totalDps - a.totalDps || b.score - a.score)
       .slice(0, maxEntries);
   } catch (e) {
