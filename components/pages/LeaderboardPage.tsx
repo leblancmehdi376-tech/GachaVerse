@@ -29,7 +29,7 @@ export function LeaderboardPage() {
 
   const loadEntries = async () => {
     setLoading(true);
-    setEntries(await getTopLeaderboard(20));
+    setEntries(await getTopLeaderboard(50));
     setLoading(false);
   };
 
