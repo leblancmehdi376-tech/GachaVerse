@@ -103,20 +103,11 @@ interface GameStore extends GameState {
   equipmentInventory: Record<string, number>;
   lastEquipmentDrop: string | null;
   addItem: (itemId: string, qty?: number) => void;
-  removeItem: (itemId: string, qty?: number) => void;
   sellItem: (itemId: string, qty: number) => void;
   addEquipment: (equipmentId: string, qty?: number) => void;
-  removeEquipment: (equipmentId: string, qty?: number) => void;
   recycleEquipment: (equipmentId: string, qty?: number) => void;
   equipItem: (templateId: string, slot: EquipmentSlot, equipmentId: string) => void;
   unequipItem: (templateId: string, slot: EquipmentSlot) => void;
-  addNekoGems: (n: number) => void;
-  spendNekoGems: (n: number) => boolean;
-  addBossCrowns: (n: number) => void;
-  spendBossCrowns: (n: number) => boolean;
-  addPixelCoins: (n: number) => void;
-  removeFromCollection: (templateId: string) => void;
-  unequipCharacterById: (templateId: string) => void;
   setLastEquipmentDrop: (id: string | null) => void;
   // Boutique quotidienne (Orbe du Néant)
   dailyShop: { dayKey: string; characterIds: string[]; purchased: string[] };
@@ -124,6 +115,8 @@ interface GameStore extends GameState {
   buyShopCharacter: (slotIndex: number) => void;
   buyGemsWithOrbs: (packId: string) => void;
   buyEquipmentChest: (tier: 'common' | 'rare' | 'epic') => string | null;
+  recycleChampion:   (templateId: string) => void;
+  removeChampion:    (templateId: string) => void; // pour HdV
   // Pack de démarrage Early Access
   starterPackClaimed: boolean;
   isStarterPackAvailable: () => boolean;
@@ -187,6 +180,7 @@ const makeInitial = () => ({
   bossCrowns: 0, voidOrbs: 0,
   inventory: {} as Record<string, number>,
   equipmentInventory: {} as Record<string, number>,
+  championInventory:  {} as Record<string, number>,
   lastEquipmentDrop: null,
   dpsBoostEndsAt: 0, goldBoostEndsAt: 0,
   dailyShop: { dayKey: '', characterIds: [] as string[], purchased: [] as string[] },
@@ -415,6 +409,28 @@ export const useGameStore = create<GameStore>()(
         return itemId;
       },
 
+      recycleChampion: (templateId) => {
+        const qty = get().championInventory[templateId] ?? 0;
+        if (qty <= 0) return;
+        const tpl  = getCharacterById(templateId);
+        const orbs = tpl ? getVoidOrbsForRarity(tpl.rarity) : 1;
+        set(state => {
+          const inv = { ...state.championInventory };
+          if (inv[templateId] <= 1) delete inv[templateId];
+          else inv[templateId] -= 1;
+          return { championInventory: inv, voidOrbs: state.voidOrbs + orbs };
+        });
+      },
+
+      removeChampion: (templateId) => {
+        set(state => {
+          const inv = { ...state.championInventory };
+          if ((inv[templateId] ?? 0) <= 1) delete inv[templateId];
+          else inv[templateId] -= 1;
+          return { championInventory: inv };
+        });
+      },
+
       // ─── Pack de démarrage Early Access (24h après le lancement) ───────
       isStarterPackAvailable: () => {
         if (get().starterPackClaimed) return false;
@@ -524,34 +540,6 @@ export const useGameStore = create<GameStore>()(
       addEquipment: (equipmentId, qty = 1) => set(s => ({
         equipmentInventory: { ...s.equipmentInventory, [equipmentId]: (s.equipmentInventory[equipmentId] ?? 0) + qty },
       })),
-      removeEquipment: (equipmentId, qty = 1) => set(s => {
-        const current = s.equipmentInventory[equipmentId] ?? 0;
-        return { equipmentInventory: { ...s.equipmentInventory, [equipmentId]: Math.max(0, current - qty) } };
-      }),
-      removeItem: (itemId, qty = 1) => set(s => {
-        const current = (s.inventory as Record<string, number>)[itemId] ?? 0;
-        return { inventory: { ...(s.inventory as Record<string, number>), [itemId]: Math.max(0, current - qty) } };
-      }),
-      addNekoGems: (n) => set(s => ({ nekoGems: s.nekoGems + n })),
-      spendNekoGems: (n) => {
-        if (get().nekoGems < n) return false;
-        set(s => ({ nekoGems: s.nekoGems - n })); return true;
-      },
-      addBossCrowns: (n) => set(s => ({ bossCrowns: s.bossCrowns + n })),
-      spendBossCrowns: (n) => {
-        if (get().bossCrowns < n) return false;
-        set(s => ({ bossCrowns: s.bossCrowns - n })); return true;
-      },
-      addPixelCoins: (n) => set(s => ({ pixelCoins: s.pixelCoins + n })),
-      removeFromCollection: (templateId) => set(s => {
-        const col = { ...s.collection };
-        delete col[templateId];
-        return { collection: col };
-      }),
-      unequipCharacterById: (templateId) => set(s => {
-        const team = s.equippedTeam.map(id => id === templateId ? null : id) as (string|null)[];
-        return { equippedTeam: team };
-      }),
       recycleEquipment: (equipmentId, qty = 1) => {
         const def = getEquipmentDef(equipmentId);
         if (!def) return;
@@ -725,10 +713,13 @@ export const useGameStore = create<GameStore>()(
       addToCollection: (templateId) => {
         const ex = get().collection[templateId];
         if (ex && ex.rank >= 7) {
-          // Déjà au rang maximum (7★) -> ce doublon est recyclé en Orbes du Néant
-          const tpl  = getCharacterById(templateId);
-          const orbs = tpl ? getVoidOrbsForRarity(tpl.rarity) : 1;
-          set(state => ({ voidOrbs: state.voidOrbs + orbs }));
+          // Déjà au rang maximum (7★) → va dans l'Inventaire des Champions
+          set(state => ({
+            championInventory: {
+              ...state.championInventory,
+              [templateId]: (state.championInventory[templateId] ?? 0) + 1,
+            },
+          }));
           return;
         }
         set(state => {
