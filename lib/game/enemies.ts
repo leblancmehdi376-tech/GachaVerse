@@ -218,7 +218,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Celeste',           sprite: sp(16,'celeste'),         hpMult:2.2 },
     { name:'Kiibo',             sprite: sp(16,'kiibo'),           hpMult:2.5 },
     { name:'Rantaro',           sprite: sp(16,'rantaro'),         hpMult:3.0 },
-    { name:'Maki',              sprite: sp(16,'maki'),            isBoss:true, hpMult:8,25 },
+    { name:'Maki',              sprite: sp(16,'maki'),            isBoss:true, hpMult:8.25 },
   ],
   // ── PALIER 17 : Digital Circus ───────────────────────────────────────────
   17: [
