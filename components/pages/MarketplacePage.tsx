@@ -314,9 +314,9 @@ export function MarketplacePage() {
             <div style={{ background:'rgba(249,115,22,0.05)', border:'1px solid rgba(249,115,22,0.2)', borderRadius:'12px', padding:'18px', display:'flex', flexDirection:'column', gap:'12px' }}>
               <span style={{ fontFamily:'var(--f-title)', fontSize:'13px', color:'#f97316', letterSpacing:'2px' }}>NOUVELLE ANNONCE</span>
 
-              {/* Type */}
+              {/* Type — personnages exclus (via Inventaire des Champions uniquement) */}
               <div style={{ display:'flex', gap:'8px' }}>
-                {(['item','equipment','character'] as const).map(t => (
+                {(['item','equipment'] as const).map(t => (
                   <button key={t} onClick={() => { setFormType(t); setFormItemId(''); }} style={{
                     padding:'6px 14px', borderRadius:'6px', cursor:'pointer',
                     fontFamily:'var(--f-ui)', fontWeight:700, fontSize:'11px',
