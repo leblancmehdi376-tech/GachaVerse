@@ -142,11 +142,11 @@ export function levelUpCost(level: number, rarity: Rarity): number {
     C:10, U:18, R:30, E:80, L:200, M:500, S:1500, CO:5000, P:15000, T:50000,
   };
   // Réduction légère de la croissance : 1.10 au lieu de 1.12
-  return Math.floor(rarityBase[rarity] * Math.pow(1.088, level - 1));
+  return Math.floor(rarityBase[rarity] * Math.pow(1.082, level - 1));
 }
 
 export function heroLevelUpCost(level: number): number {
-  return Math.floor(200 * Math.pow(1.22, level - 1)); // nerfé
+  return Math.floor(200 * Math.pow(1.20, level - 1)); // nerfé
 }
 
 // ── Coût d'évolution ─────────────────────────────────────────────────────
