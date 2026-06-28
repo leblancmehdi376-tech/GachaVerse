@@ -156,8 +156,8 @@ export function MarketplacePage() {
     if (!result) { showMsg(false, 'Achat impossible (déjà vendu ?)'); loadMarket(); return; }
 
     // Déduit la monnaie
-    if (listing.currency === 'gems')   store.spendNekoGems(listing.price);
-    else if (listing.currency === 'crowns') store.spendBossCrowns(listing.price);
+    if (listing.currency === 'gems')        useGameStore.setState(s => ({ nekoGems:   s.nekoGems   - listing.price }));
+    else if (listing.currency === 'crowns') useGameStore.setState(s => ({ bossCrowns: s.bossCrowns - listing.price }));
     else store.spendPixelCoins(listing.price);
 
     // Donne l'item
@@ -188,9 +188,9 @@ export function MarketplacePage() {
     const ok = await claimSaleReward(listing.id, user.uid);
     if (!ok) { showMsg(false, 'Erreur encaissement'); return; }
     // Donne la monnaie au vendeur
-    if (listing.currency === 'gems')        store.addNekoGems(listing.price);
-    else if (listing.currency === 'crowns') store.addBossCrowns(listing.price);
-    else store.addPixelCoins(listing.price);
+    if (listing.currency === 'gems')        useGameStore.setState(s => ({ nekoGems:   s.nekoGems   + listing.price }));
+    else if (listing.currency === 'crowns') useGameStore.setState(s => ({ bossCrowns: s.bossCrowns + listing.price }));
+    else useGameStore.setState(s => ({ pixelCoins: s.pixelCoins + listing.price }));
     showMsg(true, `+${formatNumber(listing.price)} ${CURRENCY_ICON[listing.currency]} encaissés !`);
     loadMine();
   };
