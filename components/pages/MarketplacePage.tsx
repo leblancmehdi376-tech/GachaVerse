@@ -114,9 +114,7 @@ export function MarketplacePage() {
       if (qty < 1) { showMsg(false, 'Item non disponible'); setFormLoading(false); return; }
       store.addEquipment(formItemId, -1);
     } else {
-      // character — on le retire de l'équipe si équipé
-      store.unequipCharacterById?.(formItemId);
-      store.removeFromCollection?.(formItemId);
+      showMsg(false, 'Type non supporté'); setFormLoading(false); return;
     }
 
     const id = await createListing({
