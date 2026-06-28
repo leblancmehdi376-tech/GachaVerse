@@ -531,10 +531,10 @@ export const useGameStore = create<GameStore>()(
         const current = get().inventory[itemId] ?? 0;
         const toSell = Math.min(qty, current);
         if (toSell <= 0) return;
-        const gained = item.sellValue * toSell;
+        const gained = (item.sellGems ?? 100) * toSell;
         set(s => ({
-          inventory:   { ...s.inventory,  [itemId]: s.inventory[itemId] - toSell },
-          pixelCoins:  s.pixelCoins + gained,
+          inventory:  { ...s.inventory, [itemId]: s.inventory[itemId] - toSell },
+          nekoGems:   s.nekoGems + gained,
         }));
       },
       addEquipment: (equipmentId, qty = 1) => set(s => ({
