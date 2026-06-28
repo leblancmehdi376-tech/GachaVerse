@@ -361,7 +361,9 @@ export const useGameStore = create<GameStore>()(
       buyGoldWithGems: (packId) => {
         const pack = GEM_GOLD_PACKS.find(p => p.id === packId);
         if (!pack || get().nekoGems < pack.gems) return;
-        set(state => ({ nekoGems: state.nekoGems - pack.gems, pixelCoins: state.pixelCoins + pack.coins }));
+        const palierMult = Math.pow(1.45, get().palier - 1);
+        const scaledCoins = Math.floor(pack.coins * palierMult);
+        set(state => ({ nekoGems: state.nekoGems - pack.gems, pixelCoins: state.pixelCoins + scaledCoins }));
       },
 
       // ─── Boutique : Orbe du Néant (persos + gemmes) ─────────────────────
