@@ -11,6 +11,7 @@ import { EventPage } from '@/components/pages/EventPage';
 import { SettingsPage } from '@/components/pages/SettingsPage';
 import { LeaderboardPage } from '@/components/pages/LeaderboardPage';
 import { MarketplacePage } from '@/components/pages/MarketplacePage';
+import { ChampionInventoryPage } from '@/components/pages/ChampionInventoryPage';
 import { AuthModal } from '@/components/layout/AuthModal';
 import { UltAnimation } from '@/components/game/UltAnimation';
 import { MusicPlayer } from '@/components/game/MusicPlayer';
@@ -21,7 +22,7 @@ import { useDpsTick } from '@/hooks/useDpsTick';
 import { formatNumber } from '@/lib/game/format';
 import { getPalierConfig } from '@/types/game';
 
-type Page = 'home' | 'upgrades' | 'companions' | 'collection' | 'gacha' | 'shop' | 'quests' | 'events' | 'settings' | 'leaderboard' | 'marketplace';
+type Page = 'home' | 'upgrades' | 'companions' | 'collection' | 'gacha' | 'shop' | 'quests' | 'events' | 'settings' | 'leaderboard' | 'marketplace' | 'champions';
 
 const NAV: { id: Page; label: string; icon: string; accent?: string }[] = [
   { id:'home',        label:'ACCUEIL',       icon:'🏠', accent:'var(--purple-glow)' },
@@ -32,9 +33,10 @@ const NAV: { id: Page; label: string; icon: string; accent?: string }[] = [
   { id:'shop',        label:'BOUTIQUE',      icon:'🛒', accent:'#4ade80'            },
   { id:'quests',      label:'QUÊTES',        icon:'📜', accent:'#34d399'            },
   { id:'events',      label:'ÉVÉNEMENTS',    icon:'⭐', accent:'#fbbf24'            },
-  { id:'leaderboard', label:'CLASSEMENT',     icon:'🏆', accent:'#fbbf24'            },
-  { id:'marketplace', label:'HÔTEL DE VILLE', icon:'🏛', accent:'#f97316'            },
-  { id:'settings',    label:'PARAMÈTRES',     icon:'⚙',  accent:'var(--text-sub)'    },
+  { id:'leaderboard', label:'CLASSEMENT',          icon:'🏆', accent:'#fbbf24'         },
+  { id:'marketplace', label:'HÔTEL DE VILLE',       icon:'🏛', accent:'#f97316'         },
+  { id:'champions',   label:'INV. CHAMPIONS',       icon:'🏅', accent:'#fbbf24'         },
+  { id:'settings',    label:'PARAMÈTRES',           icon:'⚙',  accent:'var(--text-sub)' },
 ];
 
 // Pages qui affichent la zone de combat (pas de panel central)
@@ -208,6 +210,7 @@ export function GameLayout() {
                 {page === 'settings'     && <SettingsPage onForceSave={forceSave} />}
                 {page === 'leaderboard'  && <LeaderboardPage />}
                 {page === 'marketplace'  && <MarketplacePage />}
+                {page === 'champions'    && <ChampionInventoryPage />}
               </div>
             </div>
           )}
