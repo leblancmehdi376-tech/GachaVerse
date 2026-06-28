@@ -44,6 +44,14 @@ export const GIFT_CODES: GiftCodeDef[] = [
     gems: 200,
     characters:   ['dazai', 'sanji', 'naruto'],
   },
+  {
+    code:         'BLOCK-SYLVIA',
+    items:        ['sylvia'],
+  },
+  {
+    code:         'AYGRO-EPEE',
+    items:        ['epee_ether'],
+  },
 ];
 
 // Normalise une saisie utilisateur (espaces, casse) pour la comparaison
