@@ -51,6 +51,11 @@ export const GIFT_CODES: GiftCodeDef[] = [
   {
     code:         'AYGRO-EPEE',
     items:        ['epee_ether'],
+    gems: 400,
+  },
+  {
+    code:         'ROKLOU-EPEE',
+    items:        ['epee_ether'],
   },
 ];
 
