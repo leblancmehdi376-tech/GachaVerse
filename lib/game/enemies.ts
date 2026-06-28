@@ -140,7 +140,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Pillager',      sprite: sp(10,'pillager'),     hpMult:2.0 },
     { name:'Ravager',       sprite: sp(10,'ravager'),      hpMult:2.5 },
     { name:'Guardian',      sprite: sp(10,'guardian'),     hpMult:3.0 },
-    { name:'Elder Guardian',sprite: sp(10,'elder_guardian'),isBoss:true, hpMult:7 },
+    { name:'Elder Guardian',sprite: sp(10,'elder_guardian'),isBoss:true, hpMult:6.75 },
   ],
   // ── PALIER 11 : Subnautica ───────────────────────────────────────────────
   11: [
@@ -166,7 +166,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Grimmjow',      sprite: sp(12,'grimmjow'),     hpMult:3.0 },
     { name:'Ulquiorra',     sprite: sp(12,'ulquiorra'),    hpMult:3.5 },
     { name:'Aizen',         sprite: sp(12,'aizen'),        hpMult:4.5 },
-    { name:'Yhwach',        sprite: sp(12,'yhwach'),       isBoss:true, hpMult:7.25 },
+    { name:'Yhwach',        sprite: sp(12,'yhwach'),       isBoss:true, hpMult:7 },
   ],
   // ── PALIER 13 : Fate ────────────────────────────────────────────────────
   13: [
@@ -179,7 +179,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Emiya Shirou',        sprite: sp(13,'emiya'),             hpMult:2.0 },
     { name:'Achilles',            sprite: sp(13,'achilles'),          hpMult:2.8 },
     { name:'Richard Cœur de Lion',sprite: sp(13,'richard'),           hpMult:3.5 },
-    { name:'Iskandar',            sprite: sp(13,'iskandar'),          isBoss:true, hpMult:7.5 },
+    { name:'Iskandar',            sprite: sp(13,'iskandar'),          isBoss:true, hpMult:7.25 },
   ],
   // ── PALIER 14 : Zelda — Twilight Princess ────────────────────────────────
   14: [
@@ -192,7 +192,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Auguste & Magmar',  sprite: sp(14,'auguste')         },
     { name:'Gor Cobalt',        sprite: sp(14,'gor_cobalt'),      hpMult:2.2 },
     { name:'Roi Bulbin',        sprite: sp(14,'roi_bulbin'),      hpMult:3.0 },
-    { name:'Ganondorf',         sprite: sp(14,'ganondorf'),       isBoss:true, hpMult:7.75 },
+    { name:'Ganondorf',         sprite: sp(14,'ganondorf'),       isBoss:true, hpMult:7.5 },
   ],
   // ── PALIER 15 : R.E.P.O ─────────────────────────────────────────────────
   15: [
@@ -205,7 +205,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Clown',             sprite: sp(15,'clown'),           hpMult:2.2 },
     { name:'Dress',             sprite: sp(15,'dress'),           hpMult:2.5 },
     { name:'Huntsman',             sprite: sp(15,'Huntsman'),           hpMult:3.0 },
-    { name:'Nonne',             sprite: sp(15,'nonne'),           isBoss:true, hpMult:8 },
+    { name:'Nonne',             sprite: sp(15,'nonne'),           isBoss:true, hpMult:7.75 },
   ],
   // ── PALIER 16 : Danganronpa ──────────────────────────────────────────────
   16: [
@@ -218,7 +218,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Celeste',           sprite: sp(16,'celeste'),         hpMult:2.2 },
     { name:'Kiibo',             sprite: sp(16,'kiibo'),           hpMult:2.5 },
     { name:'Rantaro',           sprite: sp(16,'rantaro'),         hpMult:3.0 },
-    { name:'Maki',              sprite: sp(16,'maki'),            isBoss:true, hpMult:8.25 },
+    { name:'Maki',              sprite: sp(16,'maki'),            isBoss:true, hpMult:8 },
   ],
   // ── PALIER 17 : Digital Circus ───────────────────────────────────────────
   17: [
@@ -231,7 +231,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Jax',               sprite: sp(17,'jax'),             hpMult:2.5 },
     { name:'Kinger',            sprite: sp(17,'kinger'),          hpMult:2.2 },
     { name:'Bubble',            sprite: sp(17,'bubble'),          hpMult:3.0 },
-    { name:'Caine',             sprite: sp(17,'caine'),           isBoss:true, hpMult:8.5 },
+    { name:'Caine',             sprite: sp(17,'caine'),           isBoss:true, hpMult:8.25 },
   ],
   // ── PALIER 18 : Sword Art Online ────────────────────────────────────────
   18: [
@@ -244,7 +244,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Chudelkin',         sprite: sp(18,'chudelkin'),       hpMult:1.8 },
     { name:'Quinella',          sprite: sp(18,'quinella'),        hpMult:3.0 },
     { name:'Dark God Vecta (Gabriel)',sprite:sp(18,'gabriel'),    hpMult:3.5 },
-    { name:'Subtilizer (forme finale)',sprite:sp(18,'subtilizer'),isBoss:true, hpMult:8.5 },
+    { name:'Subtilizer (forme finale)',sprite:sp(18,'subtilizer'),isBoss:true, hpMult:8.25 },
   ],
   // ── PALIER 19 : Bungou Stray Dogs ────────────────────────────────────────
   19: [
@@ -257,7 +257,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Mori',              sprite: sp(19,'mori'),            hpMult:2.5 },
     { name:'Atsushi',           sprite: sp(19,'atsushi'),         hpMult:2.0 },
     { name:'Akutagawa',         sprite: sp(19,'akutagawa'),       hpMult:3.0 },
-    { name:'Fyodor',            sprite: sp(19,'fyodor'),          isBoss:true, hpMult:8.75 },
+    { name:'Fyodor',            sprite: sp(19,'fyodor'),          isBoss:true, hpMult:8.5 },
   ],
   // ── PALIER 20 : Overwatch ────────────────────────────────────────────────
   20: [
