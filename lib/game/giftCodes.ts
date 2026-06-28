@@ -27,10 +27,9 @@ export const GIFT_CODES: GiftCodeDef[] = [
   { code: 'NEKOZ-TEST-EXPLOIT', pixelCoins: 2_000_000_000_000 },
   // ── Code Arthur Leywin ────────────────────────────────────────────
   {
-    code:         'ARTHUR-LEYWIN-GV1',
+    code:         'ARTHUR-LEYWIN-GVI1',
     pixelCoins:   700_000_000,
-    characters:   ['arthur_leywin'],
-    items:        ['cristal_ether'],
+    characters:   ['arthur_leywin, arthur_leywin'],
   },
   {
     code:         'CODE-SORRY-INES',
