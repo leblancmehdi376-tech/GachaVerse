@@ -191,7 +191,7 @@ export function CompanionsPage() {
                         }}
                       >
                         VENDRE ×1<br />
-                        <span style={{ fontWeight: 400, opacity: 0.8 }}>{formatNumber(item.sellValue)} 🪙</span>
+                        <span style={{ fontWeight: 400, opacity: 0.8 }}>{formatNumber(item.sellGems)} 💎</span>
                       </button>
                       {qty > 1 && (
                         <button
@@ -204,7 +204,7 @@ export function CompanionsPage() {
                           }}
                         >
                           TOUT VENDRE<br />
-                          <span style={{ fontWeight: 400, opacity: 0.8 }}>{formatNumber(item.sellValue * qty)} 🪙</span>
+                          <span style={{ fontWeight: 400, opacity: 0.8 }}>{formatNumber(item.sellGems * qty)} 💎</span>
                         </button>
                       )}
                     </div>
