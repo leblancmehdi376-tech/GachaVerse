@@ -144,16 +144,16 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
   ]),
   ce('minato', 'Minato', 'CO', 1900, 'Naruto', [
     f('minato_base', 'Minato',              'minato', 100, 1),
-    f('minato_evo1', 'Minato — 4ème Hokage','minato', 200, 6),
+    f('minato_evo1', 'Minato — 4ème Hokage','minato', 200, 6.5),
   ]),
   ce('gilgamesh', 'Gilgamesh', 'CO', 2050, 'Fate', [
     f('gilgamesh_base', 'Gilgamesh',               'gilgamesh', 100, 1),
-    f('gilgamesh_evo1', 'Gilgamesh — Roi des Héros','gilgamesh', 200, 10),
+    f('gilgamesh_evo1', 'Gilgamesh — Roi des Héros','gilgamesh', 200, 9.5),
   ]),
   c('link_midona','Link & Midona',    'CO', 1800, 'The Legend of Zelda'),
-  ce('jinwoo', 'Sung Jin Woo', 'CO', 2450, 'Solo Leveling', [
+  ce('jinwoo', 'Sung Jin Woo', 'CO', 2375, 'Solo Leveling', [
     f('jinwoo_base', 'Sung Jin Woo',                     'jinwoo', 100, 1),
-    f('jinwoo_evo1', 'Sung Jin Woo — Monarque Éveillé',  'jinwoo', 200, 6.5,  'elixir_vie'),
+    f('jinwoo_evo1', 'Sung Jin Woo — Monarque Éveillé',  'jinwoo', 200, 7,  'elixir_vie'),
     f('jinwoo_evo2', 'Sung Jin Woo — Seigneur des Ombres','jinwoo', 300, 16, 'manteau_ombre'),
     f('jinwoo_evo3', 'Sung Jin Woo — Monarque des Ombres','jinwoo', 400, 50, 'beru'),
   ]),
