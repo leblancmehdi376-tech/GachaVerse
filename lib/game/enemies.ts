@@ -186,7 +186,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Iria',              sprite: sp(14,'iria')             },
     { name:'Telma',             sprite: sp(14,'telma')            },
     { name:'Machaon',           sprite: sp(14,'machaon'),         hpMult:1.5 },
-    { name:'Héraclès (UBW)',    sprite: sp(14,'heracles')         },
+    { name:'Agent Du Crépuscule',    sprite: sp(14,'agent_crepuscule')         },
     { name:'Link Loup',         sprite: sp(14,'link_loup'),       hpMult:1.8 },
     { name:'Matornia (Maléfique)',sprite:sp(14,'matornia'),       hpMult:2.5 },
     { name:'Auguste & Magmar',  sprite: sp(14,'auguste')         },
@@ -197,14 +197,14 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
   // ── PALIER 15 : R.E.P.O ─────────────────────────────────────────────────
   15: [
     { name:'Gnome',             sprite: sp(15,'gnome')            },
-    { name:'Vélo',              sprite: sp(15,'velo')             },
+    { name:'Bella',              sprite: sp(15,'bella')             },
     { name:'Rugrat',            sprite: sp(15,'rugrat')           },
-    { name:'Agent du Crépuscule',sprite:sp(15,'agent_crepuscule'),hpMult:1.6 },
-    { name:'Moche qui jete sa tête',sprite:sp(15,'moche'),        hpMult:1.8 },
-    { name:'Crane',             sprite: sp(15,'crane'),           hpMult:2.0 },
-    { name:'Laser',             sprite: sp(15,'laser'),           hpMult:2.2 },
+    { name:'Reaper',            sprite:sp(15,'reaper'),hpMult:1.6 },
+    { name:'Cleanup Crew',sprite:sp(15,'cleanup_crew'),        hpMult:1.8 },
+    { name:'Headman',             sprite: sp(15,'headman'),           hpMult:2.0 },
+    { name:'Clown',             sprite: sp(15,'clown'),           hpMult:2.2 },
     { name:'Dress',             sprite: sp(15,'dress'),           hpMult:2.5 },
-    { name:'Xanto',             sprite: sp(15,'xanto'),           hpMult:3.0 },
+    { name:'Huntsman',             sprite: sp(15,'Huntsman'),           hpMult:3.0 },
     { name:'Nonne',             sprite: sp(15,'nonne'),           isBoss:true, hpMult:8 },
   ],
   // ── PALIER 16 : Danganronpa ──────────────────────────────────────────────
@@ -213,7 +213,7 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Chiaki',            sprite: sp(16,'chiaki')           },
     { name:'Fuyuhiko',          sprite: sp(16,'fuyuhiko'),        hpMult:1.5 },
     { name:'Miu',               sprite: sp(16,'miu'),             hpMult:1.6 },
-    { name:'Chasseur',          sprite: sp(16,'chasseur'),        hpMult:1.8 },
+    { name:'Peko',          sprite: sp(16,'peko'),        hpMult:1.8 },
     { name:'Korekiyo',          sprite: sp(16,'korekiyo'),        hpMult:2.0 },
     { name:'Celeste',           sprite: sp(16,'celeste'),         hpMult:2.2 },
     { name:'Kiibo',             sprite: sp(16,'kiibo'),           hpMult:2.5 },
@@ -238,12 +238,12 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Illfang',           sprite: sp(18,'illfang')          },
     { name:'The Gleam Eyes',    sprite: sp(18,'gleam_eyes'),      hpMult:1.6 },
     { name:'Kuradeel',          sprite: sp(18,'kuradeel')         },
+    { name:'Rosalia',sprite:sp(18,'rosalia'),hpMult:4.5 },
     { name:'Death Gun',         sprite: sp(18,'death_gun'),       hpMult:2.0 },
     { name:'PoH',               sprite: sp(18,'poh'),             hpMult:2.2 },
     { name:'Chudelkin',         sprite: sp(18,'chudelkin'),       hpMult:1.8 },
     { name:'Quinella',          sprite: sp(18,'quinella'),        hpMult:3.0 },
     { name:'Dark God Vecta (Gabriel)',sprite:sp(18,'gabriel'),    hpMult:3.5 },
-    { name:'Subtilizer (forme finale)',sprite:sp(18,'subtilizer'),hpMult:4.5 },
     { name:'Subtilizer (forme finale)',sprite:sp(18,'subtilizer'),isBoss:true, hpMult:8.5 },
   ],
   // ── PALIER 19 : Bungou Stray Dogs ────────────────────────────────────────
@@ -251,12 +251,12 @@ const PALIER_ENEMIES: Record<number, EnemyDef[]> = {
     { name:'Naomie',            sprite: sp(19,'naomie')           },
     { name:"Jun'ichi",          sprite: sp(19,'junichi')          },
     { name:'Ranpo',             sprite: sp(19,'ranpo')            },
+    { name:'Kunikida',             sprite: sp(19,'kunikida')            },
     { name:'Kenji',             sprite: sp(19,'kenji'),           hpMult:1.5 },
     { name:'Kyouka',            sprite: sp(19,'kyouka'),          hpMult:1.8 },
     { name:'Mori',              sprite: sp(19,'mori'),            hpMult:2.5 },
     { name:'Atsushi',           sprite: sp(19,'atsushi'),         hpMult:2.0 },
     { name:'Akutagawa',         sprite: sp(19,'akutagawa'),       hpMult:3.0 },
-    { name:'Fyodor',            sprite: sp(19,'fyodor'),          hpMult:4.0 },
     { name:'Fyodor',            sprite: sp(19,'fyodor'),          isBoss:true, hpMult:8.75 },
   ],
   // ── PALIER 20 : Overwatch ────────────────────────────────────────────────
@@ -294,8 +294,8 @@ export function generateEnemy(wave: number, palier: number): Enemy {
   const maxHp  = Math.floor(baseHp * hpMult);
 
   const pixelCoins = isBoss
-    ? Math.floor(70  * Math.pow(1.148, global - 1))
-    : Math.floor(34  * Math.pow(1.138, global - 1));
+    ? Math.floor(70  * Math.pow(1.168, global - 1))
+    : Math.floor(34  * Math.pow(1.141, global - 1));
 
   const gemsReward = isBoss ? Math.ceil(palier / 2) : (wave === 5 ? 1 : 0);
 
