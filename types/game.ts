@@ -141,13 +141,8 @@ export function levelUpCost(level: number, rarity: Rarity): number {
   const rarityBase: Record<Rarity, number> = {
     C:10, U:18, R:30, E:80, L:200, M:500, S:1500, CO:5000, P:15000, T:50000,
   };
-  const base = rarityBase[rarity] * Math.pow(1.095, level - 1);
-  // Réduction légère par palier de 100 niveaux (post-évolutions)
-  let discount = 1.00;
-  if      (level > 300) discount = 0.82;
-  else if (level > 200) discount = 0.88;
-  else if (level > 100) discount = 0.94;
-  return Math.floor(base * discount);
+  // Réduction légère de la croissance : 1.10 au lieu de 1.12
+  return Math.floor(rarityBase[rarity] * Math.pow(1.095, level - 1));
 }
 
 export function heroLevelUpCost(level: number): number {
@@ -211,6 +206,7 @@ export interface GameState {
   hero: HeroState;
   bossActive: boolean; bossTimeLeft: number; lastSaved: number;
   bossAvoided: boolean;
+  ultUsedThisFight: string[];
   username: string;
   equipmentInventory: Record<string, number>;
   lastEquipmentDrop: string | null;
