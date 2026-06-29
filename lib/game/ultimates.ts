@@ -302,9 +302,9 @@ export const ULTIMATE_DEFS: Record<string, UltimateDef> = {
 
   // ══ PRIMORDIAUX — cooldown 540s ═══════════════════════════════════════
   goku: {
-    templateId:'goku', name:'Kamehameha', duration:1, cooldown:540,
-    description:'Inflige instantanément 22% des PV max de l\'ennemi',
-    effect:{ instantDamagePctMaxHp:22 }, animDuration:2600, 
+    templateId:'goku', name:'Kamehameha', duration:1, cooldown:1,
+    description:'Inflige instantanément 100% des PV max de l\'ennemi',
+    effect:{ instantDamagePctMaxHp:100 }, animDuration:2600, 
   },
   limule: {
     templateId:'limule', name:'Prédateur', duration:15, cooldown:540,
