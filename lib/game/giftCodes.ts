@@ -17,14 +17,15 @@ export const GIFT_CODES: GiftCodeDef[] = [
   { code: 'NEKOZ-TEST-3X8Q',  gems: 45 },
   { code: 'NEKOZ-TEST-INES',  gems: 45 },
   { code: 'BEBE-MALADE-ROKU', gems: 45 },
-  { code: 'CODE-TEST-1252',   gems: 450 },
-  { code: 'CODE-TEST-1352',   gems: 400 },
+  { code: 'CODE-TEST-3568',   gems: 4500 },
+  { code: 'CODE-TEST-1549',   gems: 4500 },
   // ── Codes 70M Coins ───────────────────────────────────────────────
   { code: 'NEKOZ-RICH-4F7H',  pixelCoins: 10_000_000 },
   { code: 'NEKOZ-PATCH-507H', pixelCoins: 400_000_000 },
   { code: 'NEKOZ-PATCH-5100', pixelCoins: 400_000_000 },
   { code: 'NEKOZ-PATCH-12100', pixelCoins: 700_000_000 },
-  { code: 'THIS-IS-THE-ENF', pixelCoins: 9_000_000_000_000_000_000_000_000_000 },
+  { code: 'THIS-IS-THE-EGF', pixelCoins: 9_000_000_000_000_000_000_000_000_000_000_000_000_000_000 },
+  { code: 'THIS-IS-THE-ENF', pixelCoins: 9_000_000_000_000_000_000_000_000_000_000_000_000_000_000 },
   // ── Code Arthur Leywin ────────────────────────────────────────────
   {
     code:         'ARTHUR-LEYWIN-GV2',
