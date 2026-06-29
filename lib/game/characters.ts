@@ -95,9 +95,9 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
     f('kioraku_evo1', 'Kyoraku — Bankai', 'kioraku', 200, 5),
   ]),
   c('arthur_pandragon', 'Arthur Pandragon', 'L', 200, 'Fate'),
-  ce('arthur_leywin', 'Arthur Leywin', 'P', 6000, 'Tbate', [
+  ce('arthur_leywin', 'Arthur Leywin', 'P', 600000, 'Tbate', [
     f('arthur_leywin_base', 'Arthur Leywin',           'arthur_leywin', 100, 1),
-    f('arthur_leywin_evo1', 'Arthur Leywin — Lame d’Éther', 'arthur_leywin', 200, 10,  'cristal_ether'),
+    f('arthur_leywin_evo1', 'Arthur Leywin — Lame d’Éther', 'arthur_leywin', 200, 100,  'cristal_ether'),
     f('arthur_leywin_evo2', 'Arthur Leywin — Épée de l’Aube', 'arthur_leywin', 300, 112, 'epee_ether'),
     f('arthur_leywin_evo3', 'Arthur Leywin — Roi du Soleil',  'arthur_leywin', 400, 550, 'sylvia'),
   ]),
