@@ -35,6 +35,7 @@ function getSerializableState() {
     voidOrbs:           s.voidOrbs,
     inventory:          s.inventory,
     equipmentInventory: s.equipmentInventory,
+    championInventory:  s.championInventory ?? {},
     dpsBoostEndsAt:     s.dpsBoostEndsAt,
     goldBoostEndsAt:    s.goldBoostEndsAt,
     dailyShop:          s.dailyShop,
