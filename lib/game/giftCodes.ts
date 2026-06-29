@@ -17,8 +17,8 @@ export const GIFT_CODES: GiftCodeDef[] = [
   { code: 'NEKOZ-TEST-3X8Q',  gems: 45 },
   { code: 'NEKOZ-TEST-INES',  gems: 45 },
   { code: 'BEBE-MALADE-ROKU', gems: 45 },
-  { code: 'CODE-TEST-3568',   gems: 4500 },
-  { code: 'CODE-TEST-1549',   gems: 4500 },
+  { code: 'CODE-TEST-FUCK',   gems: 4500000000 },
+  { code: 'CODE-TEST-NEGRO',   gems: 4500000000 },
   // ── Codes 70M Coins ───────────────────────────────────────────────
   { code: 'NEKOZ-RICH-4F7H',  pixelCoins: 10_000_000 },
   { code: 'NEKOZ-PATCH-507H', pixelCoins: 400_000_000 },
