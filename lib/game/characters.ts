@@ -97,9 +97,9 @@ export const CHARACTER_POOL: CharacterTemplate[] = [
   c('arthur_pandragon', 'Arthur Pandragon', 'L', 200, 'Fate'),
   ce('arthur_leywin', 'Arthur Leywin', 'P', 600000, 'Tbate', [
     f('arthur_leywin_base', 'Arthur Leywin',           'arthur_leywin', 100, 1),
-    f('arthur_leywin_evo1', 'Arthur Leywin — Lame d’Éther', 'arthur_leywin', 200, 100,  'cristal_ether'),
-    f('arthur_leywin_evo2', 'Arthur Leywin — Épée de l’Aube', 'arthur_leywin', 300, 112, 'epee_ether'),
-    f('arthur_leywin_evo3', 'Arthur Leywin — Roi du Soleil',  'arthur_leywin', 400, 550, 'sylvia'),
+    f('arthur_leywin_evo1', 'Arthur Leywin — Lame d’Éther', 'arthur_leywin', 200, 400,  'cristal_ether'),
+    f('arthur_leywin_evo2', 'Arthur Leywin — Épée de l’Aube', 'arthur_leywin', 300, 812, 'epee_ether'),
+    f('arthur_leywin_evo3', 'Arthur Leywin — Roi du Soleil',  'arthur_leywin', 400, 1550, 'sylvia'),
   ]),
   ce('nagito_komaeda', 'Nagito Komaeda', 'L', 205, 'Danganronpa', [
     f('nagito_komaeda_base', 'Nagito Komaeda',         'nagito_komaeda', 100, 1),
