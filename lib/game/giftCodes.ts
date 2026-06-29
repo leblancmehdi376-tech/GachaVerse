@@ -24,7 +24,7 @@ export const GIFT_CODES: GiftCodeDef[] = [
   { code: 'NEKOZ-PATCH-507H', pixelCoins: 400_000_000 },
   { code: 'NEKOZ-PATCH-5100', pixelCoins: 400_000_000 },
   { code: 'NEKOZ-PATCH-12100', pixelCoins: 700_000_000 },
-  { code: 'THIS-IS-THE-END', pixelCoins: 9_000_000_000_000_000_000_000_000_000 },
+  { code: 'THIS-IS-THE-ENF', pixelCoins: 9_000_000_000_000_000_000_000_000_000 },
   // ── Code Arthur Leywin ────────────────────────────────────────────
   {
     code:         'ARTHUR-LEYWIN-GV2',
