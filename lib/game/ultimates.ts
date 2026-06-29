@@ -52,8 +52,8 @@ export const ULTIMATE_DEFS: Record<string, UltimateDef> = {
   },
   axolotl: {
     templateId:'axolotl', name:'Capture Surprise', duration:1, cooldown:90,
-    description:'×2 coins instantané sur l\'ennemi actuel',
-    effect:{ instantCoinMultiplierBurst:2 }, animDuration:1200,
+    description:'×0 coins instantané sur l\'ennemi actuel',
+    effect:{ instantCoinMultiplierBurst:0 }, animDuration:1200,
   },
   garry_fish: {
     templateId:'garry_fish', name:'Saut Hors de l\'Eau', duration:8, cooldown:90,
@@ -72,8 +72,8 @@ export const ULTIMATE_DEFS: Record<string, UltimateDef> = {
   },
   yamcha: {
     templateId:'yamcha', name:'La Pose', duration:1, cooldown:90,
-    description:'×2 coins instantané sur l\'ennemi actuel',
-    effect:{ instantCoinMultiplierBurst:2 }, animDuration:1400,
+    description:'×0 coins instantané sur l\'ennemi actuel',
+    effect:{ instantCoinMultiplierBurst:0 }, animDuration:1400,
   },
   korogu: {
     templateId:'korogu', name:'Cri de la Forêt', duration:8, cooldown:90,
@@ -151,8 +151,8 @@ export const ULTIMATE_DEFS: Record<string, UltimateDef> = {
   },
   kissy_missy: {
     templateId:'kissy_missy', name:'Cadeau', duration:1, cooldown:150,
-    description:'×2 monnaie instantané sur l\'ennemi actuel',
-    effect:{ instantCoinMultiplierBurst:2 }, animDuration:1600,    // ← nerfé : était x10
+    description:'×0 monnaie instantané sur l\'ennemi actuel',
+    effect:{ instantCoinMultiplierBurst:0 }, animDuration:1600,    // ← nerfé : était x10
   },
   yuno: {
     templateId:'yuno', name:'Tempête de Vent', duration:5, cooldown:150,
